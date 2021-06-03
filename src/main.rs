@@ -51,15 +51,19 @@ impl Emulator {
             println!("{:#4X?}", opcode);
             let m_cycles = runner.run_op(opcode, &mut self.cpu);
 
+            eprintln!("m_cycles = {:?}", m_cycles);
+
             if m_cycles == 0 {
                 // Unknown.
                 println!("Unknown opcode: {:#4X?}", opcode);
                 break;
             }
 
-            if window.is_open() {
-               window.update_with_buffer(&buffer, 160, 144) .unwrap();
-            }
+            self.cpu.gpu.go()
+
+            // if window.is_open() {
+            //    window.update_with_buffer(&buffer, 160, 144) .unwrap();
+            // }
             // println!("{}", cycles);
 
             println!("{:?}", &self.cpu.registers);
@@ -76,7 +80,7 @@ fn main() {
 
     // Maximum size of GB ROM: http://www.codeslinger.co.uk/pages/projects/gameboy/beginning.html
     // let mut rom = [0u8; 200000];
-    let mut boot = File::open("src/Pokemon Red.gb").unwrap();
+    let mut boot = File::open("roms/Pokemon Red.gb").unwrap();
     // let mut boot = File::open("src/dmg_boot.bin").unwrap();
 
     let mut emu = Emulator::default();
