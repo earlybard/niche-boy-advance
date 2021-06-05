@@ -30,9 +30,9 @@ impl Registers {
     pub fn get_af(&self) -> u16 {
         Util::bytes_to_word(self.accumulator, self.flags.get_byte())
     }
-    pub fn set_af(&mut self, value: u16) {
-        todo!();
-    }
+    // pub fn set_af(&mut self, value: u16) {
+    //     todo!();
+    // }
     pub fn dec_sp(&mut self) {
         self.sp = self.sp.wrapping_sub(1)
     }

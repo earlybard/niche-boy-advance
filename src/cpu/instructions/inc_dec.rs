@@ -1,5 +1,5 @@
 use crate::emu::Emu;
-use crate::registers::register::{RegisterPair, get_arithmetic_reg_pair_xx};
+use crate::registers::register::{get_arithmetic_reg_pair_xx};
 
 pub fn inc_nn(emu: &mut Emu, opcode: u8) -> u8 {
 

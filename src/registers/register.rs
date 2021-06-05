@@ -1,5 +1,4 @@
 use crate::emu::Emu;
-use crate::util::Util;
 
 #[derive(Debug)]
 pub enum Register {
@@ -87,7 +86,7 @@ fn get_arithmetic_reg(code: u8) -> Register {
         5 => Register::L,
         6 => Register::HLPOINTER,
         7 => Register::A,
-        _ => panic!(format!("Not a valid register: {}", code))
+        _ => panic!("Not a valid register: {}", code)
     }
 }
 
@@ -107,7 +106,7 @@ fn get_arithmetic_reg_pair(code: u8) -> RegisterPair {
         1 => RegisterPair::DE,
         2 => RegisterPair::HL,
         3 => RegisterPair::SP,
-        _ => panic!(format!("Not a valid register pair: {}", code))
+        _ => panic!("Not a valid register pair: {}", code)
     }
 }
 

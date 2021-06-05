@@ -1,15 +1,14 @@
 use crate::emu::Emu;
 use crate::cpu::instructions::jump::{jump_relative, jump};
 use crate::cpu::instructions::xor::xor;
-use crate::registers::register::{Register, RegisterPair};
-use std::path::Prefix::UNC;
+use crate::registers::register::{RegisterPair};
 use crate::cpu::instructions::load::{load, load_r_n, load_control_to_register, load_rr, load_rr_nn};
 use crate::cpu::instructions::misc::{di, noop};
 use crate::cpu::instructions::compare::compare;
 use crate::cpu::instructions::jump::JumpRelativeCondition::{UNCONDITIONAL, Z, NZ};
 use crate::cpu::instructions::load::LoadMode::{FF00, WORD};
 use crate::cpu::instructions::call::{call, ret};
-use crate::registers::register::Register::{B, A};
+use crate::registers::register::Register::{A};
 use crate::cpu::instructions::res::res;
 use crate::cpu::instructions::and::{and_u8, and_n};
 use crate::cpu::instructions::inc_dec::{inc_nn, dec_nn};

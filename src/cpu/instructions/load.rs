@@ -1,7 +1,7 @@
 use crate::emu::{Emu};
 use crate::util::Util;
 use crate::registers::register::{Register, RegisterPair, get_arithmetic_reg_xxx, get_arithmetic_reg_yyy};
-use crate::registers::register::Register::{B, C, D, E, H, L, HLPOINTER, A};
+use crate::registers::register::Register::{HLPOINTER};
 
 pub enum LoadMode {
     WORD,

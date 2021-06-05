@@ -1,14 +1,9 @@
-use std::borrow::Borrow;
 use std::fs::File;
 use std::io::prelude::*;
-use std::ops::Deref;
 
-use minifb::{Scale, Window, WindowOptions};
+// use minifb::{Scale, Window, WindowOptions};
 
 use emu::Emu;
-
-use crate::gpu::gpu::GPU;
-use std::process::exit;
 
 mod cpu;
 mod util;
@@ -18,9 +13,9 @@ mod memory;
 pub mod emu;
 mod interrupts;
 
-const T_CLOCK: u32 = 4194304u32;
-const M_CLOCK: u32 = T_CLOCK / 4;
-const FPS: u16 = 60;
+// const T_CLOCK: u32 = 4194304u32;
+// const M_CLOCK: u32 = T_CLOCK / 4;
+// const FPS: u16 = 60;
 
 #[derive(Debug)]
 #[derive(Default)]

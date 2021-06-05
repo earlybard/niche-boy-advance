@@ -1,9 +1,7 @@
-use std::fmt::{Debug, Formatter, Result};
+use std::fmt::{Debug};
 use crate::util::Util;
-use crate::registers::register::Register;
 use crate::gpu::gpu::GPU;
 use crate::cpu::cpu::CPU;
-use crate::registers::flags::Flags;
 use crate::registers::registers::Registers;
 use crate::memory::memory::Memory;
 use crate::interrupts::interrupts::Interrupts;
