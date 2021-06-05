@@ -1,7 +1,7 @@
-use crate::cpu::cpu::CPU;
+use crate::cpu::cpu::Emu;
 use crate::cpu::register::Register;
 
-pub fn res(cpu: &mut CPU, bit: u8, register: Register) -> u8 {
+pub fn res(cpu: &mut Emu, bit: u8, register: Register) -> u8 {
 
     let val = cpu.registers.get_value(&register);
 
@@ -21,7 +21,7 @@ mod tests {
     #[test]
     fn test_res() {
 
-        let mut cpu = CPU::default();
+        let mut cpu = Emu::default();
 
         cpu.registers.hl.first = 0b10111001;
         res(&mut cpu, 7, Register::H);

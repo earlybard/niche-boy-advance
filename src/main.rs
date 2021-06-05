@@ -2,7 +2,7 @@ mod cpu;
 mod util;
 mod gpu;
 
-use crate::cpu::cpu::CPU;
+use crate::cpu::cpu::Emu;
 
 use std::fs::File;
 use std::io::prelude::*;
@@ -18,7 +18,7 @@ const FPS: u16 = 60;
 #[derive(Debug)]
 #[derive(Default)]
 struct Emulator {
-    cpu: CPU,
+    cpu: Emu,
 }
 
 impl Emulator {
@@ -51,7 +51,7 @@ impl Emulator {
             println!("{:#4X?}", opcode);
             let m_cycles = runner.run_op(opcode, &mut self.cpu);
 
-            eprintln!("m_cycles = {:?}", m_cycles);
+            // eprintln!("m_cycles = {:?}", m_cycles);
 
             if m_cycles == 0 {
                 // Unknown.
@@ -59,15 +59,15 @@ impl Emulator {
                 break;
             }
 
-            self.cpu.gpu.go()
+            self.cpu.run_gpu(m_cycles * 4);
 
             // if window.is_open() {
             //    window.update_with_buffer(&buffer, 160, 144) .unwrap();
             // }
             // println!("{}", cycles);
 
-            println!("{:?}", &self.cpu.registers);
-            println!("{:?}", &self.cpu.registers.flags);
+            // println!("{:?}", &self.cpu.registers);
+            // println!("{:?}", &self.cpu.registers.flags);
         }
         // eprintln!("opcode = {:#?}", opcode);
     }

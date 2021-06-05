@@ -1,4 +1,4 @@
-use crate::cpu::cpu::CPU;
+use crate::cpu::cpu::Emu;
 use crate::cpu::instructions::jump::{jump_relative, jump};
 use crate::cpu::instructions::xor::xor;
 use crate::cpu::register::Register;
@@ -11,11 +11,12 @@ use crate::cpu::instructions::load::LoadMode::{FF00, WORD};
 use crate::cpu::instructions::call::call;
 use crate::cpu::register::Register::{B, A};
 use crate::cpu::instructions::res::res;
+use crate::cpu::instructions::and::and_immediate;
 
 pub struct OpCodes {}
 
 impl OpCodes {
-    pub fn run_op(&self, opcode: u8, cpu: &mut CPU) -> u8 {
+    pub fn run_op(&self, opcode: u8, cpu: &mut Emu) -> u8 {
 
         return match opcode {
             0x00 => noop(),
@@ -29,6 +30,7 @@ impl OpCodes {
             0xCB => self.run_prefix(cpu),
             0xCD => call(cpu),
             0xE0 => load(cpu, FF00),
+            0xE6 => and_immediate(cpu),
             0xEA => load(cpu, WORD),
             0xF0 => load_control_to_register(cpu, A),
             0xF3 => di(cpu),
@@ -37,7 +39,7 @@ impl OpCodes {
         }
     }
 
-    fn run_prefix(&self, cpu: &mut CPU) -> u8 {
+    fn run_prefix(&self, cpu: &mut Emu) -> u8 {
 
         let opcode = cpu.read_and_inc();
 

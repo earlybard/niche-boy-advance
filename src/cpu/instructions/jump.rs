@@ -1,4 +1,4 @@
-use crate::cpu::cpu::CPU;
+use crate::cpu::cpu::Emu;
 
 pub enum JumpRelativeCondition {
     UNCONDITIONAL,
@@ -8,7 +8,7 @@ pub enum JumpRelativeCondition {
     NC
 }
 
-pub fn jump_relative(cpu: &mut CPU, condition: JumpRelativeCondition) -> u8 {
+pub fn jump_relative(cpu: &mut Emu, condition: JumpRelativeCondition) -> u8 {
     // JR Z, i8
     // 2M without branch, 3M with branch
 
@@ -34,7 +34,7 @@ pub fn jump_relative(cpu: &mut CPU, condition: JumpRelativeCondition) -> u8 {
     }
 }
 
-pub fn jump(cpu: &mut CPU) -> u8 {
+pub fn jump(cpu: &mut Emu) -> u8 {
     // JP nn
 
     cpu.registers.pc = cpu.read_u16_and_inc();

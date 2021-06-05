@@ -6,7 +6,7 @@ use crate::gpu::gpu::GPU;
 
 #[derive(Debug)]
 #[derive(Default)]
-pub struct CPU {
+pub struct Emu {
     pub registers: Registers,
     pub memory: Memory,
     pub gpu: GPU,
@@ -14,7 +14,7 @@ pub struct CPU {
 }
 
 #[allow(dead_code)]
-impl CPU {
+impl Emu {
     pub fn read(&self) -> u8 {
         self.memory.buffer[self.registers.pc as usize]
     }
@@ -133,7 +133,7 @@ impl Registers {
             Register::E => self.de.second,
             Register::F => self.flags.get_byte(),
             Register::H => self.hl.first,
-            Register::L => self.hl.second
+            Register::L => self.hl.second,
         }
     }
     pub fn set_value(&mut self, register: &Register, value: u8) {

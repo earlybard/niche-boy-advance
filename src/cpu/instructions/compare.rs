@@ -1,6 +1,6 @@
-use crate::cpu::cpu::CPU;
+use crate::cpu::cpu::Emu;
 
-pub fn compare(cpu: &mut CPU) -> u8 {
+pub fn compare(cpu: &mut Emu) -> u8 {
     let constant = cpu.read_and_inc();
 
     let (result, carry) = cpu.registers.accumulator.overflowing_sub(constant);

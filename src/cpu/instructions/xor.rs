@@ -1,7 +1,7 @@
-use crate::cpu::cpu::CPU;
+use crate::cpu::cpu::Emu;
 use crate::cpu::register::Register;
 
-pub fn xor(cpu: &mut CPU, register: Register) -> u8 {
+pub fn xor(cpu: &mut Emu, register: Register) -> u8 {
 
     cpu.registers.accumulator ^= cpu.registers.get_value(&register);
 
