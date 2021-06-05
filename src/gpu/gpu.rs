@@ -1,4 +1,4 @@
-use crate::cpu::cpu::Emu;
+use crate::cpu::emu::Emu;
 
 #[derive(Debug)]
 #[derive(Default)]

@@ -1,4 +1,4 @@
-use crate::cpu::cpu::Emu;
+use crate::cpu::emu::Emu;
 
 pub fn compare(cpu: &mut Emu) -> u8 {
     let constant = cpu.read_and_inc();

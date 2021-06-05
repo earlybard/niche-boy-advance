@@ -1,14 +1,14 @@
-use crate::cpu::cpu::Emu;
+use crate::cpu::emu::Emu;
 use crate::cpu::instructions::jump::{jump_relative, jump};
 use crate::cpu::instructions::xor::xor;
 use crate::cpu::register::Register;
 use std::path::Prefix::UNC;
-use crate::cpu::instructions::load::{load, load_to_register, load_control_to_register, load_register_to_register};
+use crate::cpu::instructions::load::{load, load_to_register, load_control_to_register, load_rr};
 use crate::cpu::instructions::misc::{di, noop};
 use crate::cpu::instructions::compare::compare;
 use crate::cpu::instructions::jump::JumpRelativeCondition::{UNCONDITIONAL, Z, NZ};
 use crate::cpu::instructions::load::LoadMode::{FF00, WORD};
-use crate::cpu::instructions::call::call;
+use crate::cpu::instructions::call::{call, ret};
 use crate::cpu::register::Register::{B, A};
 use crate::cpu::instructions::res::res;
 use crate::cpu::instructions::and::and_immediate;
@@ -23,13 +23,11 @@ impl OpCodes {
             0x18 => jump_relative(cpu, UNCONDITIONAL),
             0x20 => jump_relative(cpu, NZ),
             0x28 => jump_relative(cpu, Z),
-            // 0x40..=0x7F => load_register_to_register()
-            0x40 => load_register_to_register(cpu, B, B),
-            0x47 => load_register_to_register(cpu, B, A),
-            0x78 => load_register_to_register(cpu, A, B),
+            0x40..=0x7F => load_rr(cpu, opcode),
             0x3E => load_to_register(cpu, A),
             0xAF => xor(cpu, A),
             0xC3 => jump(cpu),
+            0xC9 => ret(cpu),
             0xCB => self.run_prefix(cpu),
             0xCD => call(cpu),
             0xE0 => load(cpu, FF00),

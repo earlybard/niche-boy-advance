@@ -1,9 +1,9 @@
-use crate::cpu::cpu::Emu;
+use crate::cpu::emu::Emu;
 use crate::cpu::register::Register;
 
 pub fn xor(cpu: &mut Emu, register: Register) -> u8 {
 
-    cpu.registers.accumulator ^= cpu.registers.get_value(&register);
+    cpu.registers.accumulator ^= cpu.get_reg(&register);
 
     cpu.registers.flags.reset();
 

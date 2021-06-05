@@ -1,5 +1,6 @@
-pub mod cpu;
+pub mod emu;
 pub mod opcodes;
-mod instructions;
-mod register;
-mod interrupts;
+pub mod instructions;
+pub mod register;
+pub mod interrupts;
+pub mod cpu;

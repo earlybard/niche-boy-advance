@@ -2,7 +2,7 @@ mod cpu;
 mod util;
 mod gpu;
 
-use crate::cpu::cpu::Emu;
+use crate::cpu::emu::Emu;
 
 use std::fs::File;
 use std::io::prelude::*;
@@ -10,6 +10,7 @@ use crate::cpu::opcodes::OpCodes;
 use std::borrow::Borrow;
 use minifb::{Window, WindowOptions, Scale};
 use crate::gpu::gpu::GPU;
+use std::ops::Deref;
 
 const T_CLOCK: u32 = 4194304u32;
 const M_CLOCK: u32 = T_CLOCK / 4;
@@ -47,6 +48,7 @@ impl Emulator {
         window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
         loop {
+            println!("PC: {:#6X?}", self.cpu.registers.pc);
             let opcode = self.cpu.read_and_inc();
             println!("{:#4X?}", opcode);
             let m_cycles = runner.run_op(opcode, &mut self.cpu);
