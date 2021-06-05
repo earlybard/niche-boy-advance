@@ -75,7 +75,6 @@ impl Emulator {
 
             let m_cycles = self.emu.run_operand(opcode);
 
-
             if m_cycles == 0 {
                 // Unknown.
                 println!("Unknown opcode: {:#4X?}", opcode);

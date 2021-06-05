@@ -6,5 +6,6 @@ pub mod compare;
 pub mod call;
 pub mod res;
 pub mod and;
-pub mod inc;
+pub mod inc_dec;
+pub mod or;
 

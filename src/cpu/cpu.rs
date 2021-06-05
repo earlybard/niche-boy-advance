@@ -12,7 +12,8 @@ use crate::cpu::instructions::call::{call, ret};
 use crate::registers::register::Register::{B, A};
 use crate::cpu::instructions::res::res;
 use crate::cpu::instructions::and::{and_u8, and_n};
-use crate::cpu::instructions::inc::inc_nn;
+use crate::cpu::instructions::inc_dec::{inc_nn, dec_nn};
+use crate::cpu::instructions::or::or_n;
 
 
 #[derive(Debug)]
@@ -34,8 +35,10 @@ impl Emu {
             0x31 => load_rr_nn(self, RegisterPair::SP),
             0x03 | 0x13 | 0x23 | 0x33 => inc_nn(self, opcode),
             0x06 | 0x0E | 0x16 | 0x1E | 0x26 | 0x2E | 0x36 | 0x3E => load_r_n(self, opcode),
+            0x0B | 0x1B | 0x2B | 0x3B => dec_nn(self, opcode),
             0x40..=0x7F => load_rr(self, opcode),
             0xA0..=0xA7 => and_n(self, opcode),
+            0xB0..=0xB7 => or_n(self, opcode),
             0xAF => xor(self, A),
             0xC3 => jump(self),
             0xC9 => ret(self),
