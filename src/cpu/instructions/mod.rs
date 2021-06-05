@@ -6,4 +6,5 @@ pub mod compare;
 pub mod call;
 pub mod res;
 pub mod and;
+pub mod inc;
 

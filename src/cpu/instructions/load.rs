@@ -1,6 +1,6 @@
 use crate::emu::{Emu};
 use crate::util::Util;
-use crate::registers::register::Register;
+use crate::registers::register::{Register, RegisterPair, get_arithmetic_reg_xxx, get_arithmetic_reg_yyy};
 use crate::registers::register::Register::{B, C, D, E, H, L, HLPOINTER, A};
 
 pub enum LoadMode {
@@ -20,13 +20,6 @@ pub fn load(cpu: &mut Emu, mode: LoadMode) -> u8 {
     3
 }
 
-pub fn load_to_register(cpu: &mut Emu, register: Register) -> u8 {
-
-    let value = cpu.read_and_inc();
-    cpu.set_reg(&register, value);
-    2
-}
-
 pub fn load_control_to_register(cpu: &mut Emu, register: Register) -> u8 {
 
     let index = cpu.read_and_inc();
@@ -37,27 +30,27 @@ pub fn load_control_to_register(cpu: &mut Emu, register: Register) -> u8 {
     3
 }
 
-fn get_arithmetic_register(code: u8) -> Register {
-    return match code {
-        0 => B,
-        1 => C,
-        2 => D,
-        3 => E,
-        4 => H,
-        5 => L,
-        6 => HLPOINTER,
-        7 => A,
-        _ => panic!(format!("Not a valid register: {}", code))
-    }
+pub fn load_rr_nn(emu: &mut Emu, register: RegisterPair) -> u8 {
+
+    let word = emu.read_u16_and_inc();
+    emu.set_reg_pair(&register, word);
+
+    3
+}
+
+pub fn load_r_n(cpu: &mut Emu, opcode: u8) -> u8 {
+
+    let to = get_arithmetic_reg_xxx(opcode);
+
+    let value = cpu.read_and_inc();
+    cpu.set_reg(&to, value);
+    2
 }
 
 pub fn load_rr(cpu: &mut Emu, opcode: u8) -> u8 {
 
-    let xxx = (opcode & 0b00111000) >> 3;
-    let yyy = opcode & 0b00000111;
-
-    let to = get_arithmetic_register(xxx);
-    let from = get_arithmetic_register(yyy);
+    let to = get_arithmetic_reg_xxx(opcode);
+    let from = get_arithmetic_reg_yyy(opcode);
 
     load_register_to_register(cpu, to, from)
 }

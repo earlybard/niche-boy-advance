@@ -1,14 +1,14 @@
 use crate::emu::Emu;
 use crate::registers::register::Register;
+use crate::util::Util;
 
 pub fn res(cpu: &mut Emu, bit: u8, register: Register) -> u8 {
 
     let val = cpu.get_reg(&register);
 
-    // e.g. for bit=3 11110111, bit=2 11111011
-    let reset = !(1u8 << bit);
+    let result = Util::reset_flag(val, bit);
 
-    cpu.set_reg(&register, val & reset);
+    cpu.set_reg(&register, result);
 
     2
 }

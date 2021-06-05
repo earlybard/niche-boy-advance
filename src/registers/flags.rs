@@ -2,7 +2,7 @@
 #[derive(Default)]
 pub struct Flags {
     pub zero: bool,
-    pub subtraction: bool,
+    pub negative: bool,
     pub half_carry: bool,
     pub carry: bool,
 
@@ -19,7 +19,7 @@ impl Flags {
         let mut result = 0u8;
 
         if self.zero { result = result | 0b10000000 };
-        if self.subtraction { result = result | 0b01000000 };
+        if self.negative { result = result | 0b01000000 };
         if self.half_carry { result = result | 0b00100000 };
         if self.carry { result = result | 0b00010000 };
 
@@ -28,7 +28,7 @@ impl Flags {
 
     pub fn reset(&mut self) {
         self.zero = false;
-        self.subtraction = false;
+        self.negative = false;
         self.half_carry = false;
         self.carry = false;
     }

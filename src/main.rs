@@ -8,6 +8,7 @@ use minifb::{Scale, Window, WindowOptions};
 use emu::Emu;
 
 use crate::gpu::gpu::GPU;
+use std::process::exit;
 
 mod cpu;
 mod util;
@@ -27,6 +28,13 @@ struct Emulator {
     emu: Emu,
 }
 
+/// Best docs:
+/// https://gekkio.fi/files/gb-docs/gbctr.pdf
+/// https://izik1.github.io/gbops/
+/// https://realboyemulator.files.wordpress.com/2013/01/gbcpuman.pdf
+/// http://imrannazar.com/GameBoy-Emulation-in-JavaScript:-GPU-Timings
+/// http://www.codeslinger.co.uk/pages/projects/gameboy/lcd.html
+/// https://gbdev.io/pandocs/LCDC.html
 impl Emulator {
     fn run(&mut self) {
         // eprintln!("rom[0] = {:x}", &self.rom[0]);
@@ -34,31 +42,45 @@ impl Emulator {
         self.emu.registers.pc = 0x100;
         self.emu.registers.accumulator = 0x1;
         self.emu.registers.sp = 0xFFFE;
+        self.emu.registers.bc.set_word(0x0014);
+        self.emu.registers.hl.set_word(0xC060);
         self.main_loop();
     }
 
     fn main_loop(&mut self) {
 
-        let mut buffer = vec![0u32; 160*144];
-
-        let mut window = Window::new(
-            "Test - ESC to exit",
-            160,
-            144,
-            WindowOptions { scale: Scale::X4, ..WindowOptions::default() }
-        ).unwrap();
-
-        window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+        // let mut buffer = vec![0u32; 160*144];
+        //
+        // let mut window = Window::new(
+        //     "Test - ESC to exit",
+        //     160,
+        //     144,
+        //     WindowOptions { scale: Scale::X4, ..WindowOptions::default() }
+        // ).unwrap();
+        //
+        // window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
         loop {
+
+            if self.emu.registers.pc == 0x1F82 {
+                println!("{:?}", &self.emu.registers);
+                println!("{:?}", &self.emu.registers.flags);
+            }
+            //
             println!("PC: {:#6X?}", self.emu.registers.pc);
             let opcode = self.emu.read_and_inc();
-            println!("{:#4X?}", opcode);
+            println!("OP: {:#04X?}", opcode);
+            println!("{:?}", &self.emu.registers);
+            println!("{:?}", &self.emu.registers.flags);
+
             let m_cycles = self.emu.run_operand(opcode);
+
 
             if m_cycles == 0 {
                 // Unknown.
                 println!("Unknown opcode: {:#4X?}", opcode);
+                println!("{:?}", &self.emu.registers);
+                println!("{:?}", &self.emu.registers.flags);
                 break;
             }
 

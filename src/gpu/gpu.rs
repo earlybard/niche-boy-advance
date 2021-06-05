@@ -1,4 +1,5 @@
 use crate::emu::Emu;
+use crate::util::Util;
 
 #[derive(Debug)]
 #[derive(Default)]
@@ -11,6 +12,13 @@ pub struct GPU {
 
 impl Emu {
     pub fn run_gpu(&mut self, t_cycles: u8) {
+
+        let lcd_control = self.memory.read_byte(0xFF40);
+        let lcd_enable = Util::get_flag(lcd_control, 7);
+
+        if !lcd_enable {
+            return;
+        }
 
         self.gpu.t_cycles += t_cycles as u32;
 
