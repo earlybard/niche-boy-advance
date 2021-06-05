@@ -1,16 +1,21 @@
+use std::borrow::Borrow;
+use std::fs::File;
+use std::io::prelude::*;
+use std::ops::Deref;
+
+use minifb::{Scale, Window, WindowOptions};
+
+use emu::Emu;
+
+use crate::gpu::gpu::GPU;
+
 mod cpu;
 mod util;
 mod gpu;
-
-use crate::cpu::emu::Emu;
-
-use std::fs::File;
-use std::io::prelude::*;
-use crate::cpu::opcodes::OpCodes;
-use std::borrow::Borrow;
-use minifb::{Window, WindowOptions, Scale};
-use crate::gpu::gpu::GPU;
-use std::ops::Deref;
+mod registers;
+mod memory;
+pub mod emu;
+mod interrupts;
 
 const T_CLOCK: u32 = 4194304u32;
 const M_CLOCK: u32 = T_CLOCK / 4;
@@ -19,22 +24,20 @@ const FPS: u16 = 60;
 #[derive(Debug)]
 #[derive(Default)]
 struct Emulator {
-    cpu: Emu,
+    emu: Emu,
 }
 
 impl Emulator {
     fn run(&mut self) {
         // eprintln!("rom[0] = {:x}", &self.rom[0]);
         // eprintln!("cpu = {:#?}", &self.cpu);
-        self.cpu.registers.pc = 0x100;
-        self.cpu.registers.accumulator = 0x1;
-        self.cpu.registers.sp = 0xFFFE;
+        self.emu.registers.pc = 0x100;
+        self.emu.registers.accumulator = 0x1;
+        self.emu.registers.sp = 0xFFFE;
         self.main_loop();
     }
 
     fn main_loop(&mut self) {
-
-        let runner = OpCodes {};
 
         let mut buffer = vec![0u32; 160*144];
 
@@ -48,12 +51,10 @@ impl Emulator {
         window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
         loop {
-            println!("PC: {:#6X?}", self.cpu.registers.pc);
-            let opcode = self.cpu.read_and_inc();
+            println!("PC: {:#6X?}", self.emu.registers.pc);
+            let opcode = self.emu.read_and_inc();
             println!("{:#4X?}", opcode);
-            let m_cycles = runner.run_op(opcode, &mut self.cpu);
-
-            // eprintln!("m_cycles = {:?}", m_cycles);
+            let m_cycles = self.emu.run_operand(opcode);
 
             if m_cycles == 0 {
                 // Unknown.
@@ -61,7 +62,7 @@ impl Emulator {
                 break;
             }
 
-            self.cpu.run_gpu(m_cycles * 4);
+            self.emu.run_gpu(m_cycles * 4);
 
             // if window.is_open() {
             //    window.update_with_buffer(&buffer, 160, 144) .unwrap();
@@ -86,7 +87,7 @@ fn main() {
     // let mut boot = File::open("src/dmg_boot.bin").unwrap();
 
     let mut emu = Emulator::default();
-    boot.read(&mut emu.cpu.memory.buffer).unwrap();
+    boot.read(&mut emu.emu.memory.buffer).unwrap();
 
     emu.run();
 

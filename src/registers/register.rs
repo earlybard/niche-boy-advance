@@ -1,4 +1,5 @@
-use crate::cpu::emu::Emu;
+use crate::emu::Emu;
+use crate::util::Util;
 
 #[derive(Debug)]
 pub enum Register {

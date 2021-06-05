@@ -1,5 +1,5 @@
-use crate::cpu::emu::Emu;
-use crate::cpu::register::Register;
+use crate::emu::Emu;
+use crate::registers::register::Register;
 
 pub fn and(emu: &mut Emu, register: &Register) -> u8 {
     emu.registers.accumulator = emu.registers.accumulator & emu.get_reg(register);

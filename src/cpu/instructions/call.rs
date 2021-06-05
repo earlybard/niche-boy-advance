@@ -1,4 +1,4 @@
-use crate::cpu::emu::Emu;
+use crate::emu::Emu;
 
 pub fn call(cpu: &mut Emu) -> u8 {
     let value = cpu.read_u16_and_inc();

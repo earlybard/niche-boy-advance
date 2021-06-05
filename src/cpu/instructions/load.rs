@@ -1,7 +1,7 @@
-use crate::cpu::emu::{Emu, Reg};
+use crate::emu::{Emu};
 use crate::util::Util;
-use crate::cpu::register::Register;
-use crate::cpu::register::Register::{B, C, D, E, H, L, HLPOINTER, A};
+use crate::registers::register::Register;
+use crate::registers::register::Register::{B, C, D, E, H, L, HLPOINTER, A};
 
 pub enum LoadMode {
     WORD,

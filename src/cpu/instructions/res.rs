@@ -1,5 +1,5 @@
-use crate::cpu::emu::Emu;
-use crate::cpu::register::Register;
+use crate::emu::Emu;
+use crate::registers::register::Register;
 
 pub fn res(cpu: &mut Emu, bit: u8, register: Register) -> u8 {
 

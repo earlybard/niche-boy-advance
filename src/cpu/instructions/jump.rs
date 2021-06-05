@@ -1,4 +1,4 @@
-use crate::cpu::emu::Emu;
+use crate::emu::Emu;
 
 pub enum JumpRelativeCondition {
     UNCONDITIONAL,
