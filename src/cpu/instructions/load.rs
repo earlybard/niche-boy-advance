@@ -1,6 +1,7 @@
 use crate::cpu::cpu::{Emu, Reg};
 use crate::util::Util;
 use crate::cpu::register::Register;
+use crate::cpu::register::Register::{B, C, D, E, H, L, HLPOINTER, A};
 
 pub enum LoadMode {
     WORD,
@@ -36,7 +37,44 @@ pub fn load_control_to_register(cpu: &mut Emu, register: Register) -> u8 {
     3
 }
 
-pub fn load_register_to_register(cpu: &mut Emu, to: Register, from: Register) -> u8 {
+fn get_arithmetic_register(code: u8) -> Register {
+    return match code {
+        0 => B,
+        1 => C,
+        2 => D,
+        3 => E,
+        4 => H,
+        5 => L,
+        6 => HLPOINTER,
+        7 => A,
+        _ => panic!("Not a valid arithemtic register" + code.to_string())
+    }
+}
+
+pub fn load_rr(cpu: &mut Emu, opcode: u8) -> u8 {
+
+    let xxx = (opcode & 0b00111000) >> 3;
+    let yyy = opcode & 0b00000111;
+
+    let x = get_arithmetic_register(xxx);
+    let y = get_arithmetic_register(yyy);
+
+    1
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_load_rr() {
+
+        let mut cpu = Emu::default();
+        load_rr(&mut cpu, 0x53);
+    }
+}
+
+pub fn load_register_to_register(cpu: &mut Emu, from: Register, to: Register) -> u8 {
 
     cpu.registers.set_value(&from, cpu.registers.get_value(&to));
 

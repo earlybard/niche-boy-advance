@@ -6,5 +6,6 @@ pub enum Register {
     E,
     F,
     H,
-    L
+    L,
+    HLPOINTER
 }

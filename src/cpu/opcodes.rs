@@ -23,7 +23,10 @@ impl OpCodes {
             0x18 => jump_relative(cpu, UNCONDITIONAL),
             0x20 => jump_relative(cpu, NZ),
             0x28 => jump_relative(cpu, Z),
-            0x47 => load_register_to_register(cpu, A, B),
+            // 0x40..=0x7F => load_register_to_register()
+            0x40 => load_register_to_register(cpu, B, B),
+            0x47 => load_register_to_register(cpu, B, A),
+            0x78 => load_register_to_register(cpu, A, B),
             0x3E => load_to_register(cpu, A),
             0xAF => xor(cpu, A),
             0xC3 => jump(cpu),
