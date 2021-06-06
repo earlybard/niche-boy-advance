@@ -5,7 +5,6 @@ use crate::registers::register::{RegisterPair};
 use crate::cpu::instructions::load::{load, load_r_n, load_control_to_register, load_rr, load_rr_nn};
 use crate::cpu::instructions::misc::{di, noop};
 use crate::cpu::instructions::compare::compare;
-use crate::cpu::instructions::jump::JumpRelativeCondition::{UNCONDITIONAL, Z, NZ, NC, C};
 use crate::cpu::instructions::load::LoadMode::{FF00, WORD};
 use crate::cpu::instructions::call::{call, ret};
 use crate::registers::register::Register::{A};
@@ -27,14 +26,18 @@ impl Emu {
 
         return match opcode {
             0x00 => noop(),
+
             0x01 => load_rr_nn(self, RegisterPair::BC),
+            0x11 => load_rr_nn(self, RegisterPair::DE),
+            0x21 => load_rr_nn(self, RegisterPair::HL),
+            0x31 => load_rr_nn(self, RegisterPair::SP),
+
             0x18 => jump_relative(self, UNCONDITIONAL),
             0x20 => jump_relative(self, NZ),
             0x28 => jump_relative(self, Z),
             0x30 => jump_relative(self, NC),
             0x38 => jump_relative(self, C),
-            0x21 => load_rr_nn(self, RegisterPair::HL),
-            0x31 => load_rr_nn(self, RegisterPair::SP),
+
             0x03 | 0x13 | 0x23 | 0x33 => inc_nn(self, opcode),
             0x06 | 0x0E | 0x16 | 0x1E | 0x26 | 0x2E | 0x36 | 0x3E => load_r_n(self, opcode),
             0x0B | 0x1B | 0x2B | 0x3B => dec_nn(self, opcode),
@@ -45,7 +48,13 @@ impl Emu {
             0xC3 => jump(self),
             0xC9 => ret(self),
             0xCB => self.run_prefix(),
-            0xCD => call(self),
+
+            0xC4 => call(self, NZ),
+            0xD4 => call(self, NC),
+            0xCC => call(self, Z),
+            0xDC => call(self, C),
+            0xCD => call(self, UNCONDITIONAL),
+
             0xE0 => load(self, FF00),
             0xE6 => and_u8(self),
             0xEA => load(self, WORD),

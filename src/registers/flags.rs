@@ -26,6 +26,8 @@ impl Flags {
         result
     }
 
+    pub fn set_byte
+
     pub fn reset(&mut self) {
         self.zero = false;
         self.negative = false;

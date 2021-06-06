@@ -1,10 +1,17 @@
 use crate::emu::Emu;
+use crate::cpu::conditionals::{Condition, check_condition};
 
-pub fn call(cpu: &mut Emu) -> u8 {
-    let value = cpu.read_u16_and_inc();
+pub fn call(emu: &mut Emu, condition: Condition) -> u8 {
 
-    cpu.push_to_stack(cpu.registers.pc);
-    cpu.registers.pc = value;
+    // FIXME Even though this gets read every time on a real gb,
+    // we can optimize by just incrementing pc if the condition isn't true.
+    let value = emu.read_u16_and_inc();
+
+    if check_condition(emu, condition) {
+        emu.push_to_stack(emu.registers.pc);
+        emu.registers.pc = value;
+        return 6;
+    }
 
     3
 }

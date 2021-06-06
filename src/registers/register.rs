@@ -1,4 +1,5 @@
 use crate::emu::Emu;
+use crate::util::Util;
 
 #[derive(Debug)]
 pub enum Register {
@@ -18,7 +19,8 @@ pub enum RegisterPair {
     BC,
     DE,
     HL,
-    SP
+    SP,
+    AF
 }
 
 impl Emu {
@@ -57,7 +59,7 @@ impl Emu {
 
     pub fn get_reg_pair(&self, register_pair: &RegisterPair) -> u16 {
         return match register_pair {
-            // RegisterPair::AF => self.registers.get_af(),
+            RegisterPair::AF => self.registers.get_af(),
             RegisterPair::BC => self.registers.bc.get_word(),
             RegisterPair::DE => self.registers.de.get_word(),
             RegisterPair::HL => self.registers.hl.get_word(),
@@ -67,7 +69,13 @@ impl Emu {
 
     pub fn set_reg_pair(&mut self, register_pair: &RegisterPair, value: u16) {
         match register_pair {
-            // RegisterPair::AF => todo!("Setter function for AF"),
+            RegisterPair::AF => {
+                let (first, second) = Util::word_to_bytes(value);
+                self.registers.accumulator = first;
+                self.registers.flags.s
+                self.first = first;
+                self.second = second;
+            }
             RegisterPair::BC => self.registers.bc.set_word(value),
             RegisterPair::DE => self.registers.de.set_word(value),
             RegisterPair::HL => self.registers.hl.set_word(value),
