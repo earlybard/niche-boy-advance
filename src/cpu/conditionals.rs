@@ -1,19 +1,19 @@
 use crate::emu::Emu;
 
 pub enum Condition {
-    UNCONDITIONAL,
-    Z,
-    NZ,
-    C,
-    NC
+    Unconditional,
+    Zero,
+    NotZero,
+    Carry,
+    NotCarry
 }
 
 pub fn check_condition(emu: &Emu, condition: Condition) -> bool {
     match condition {
-        Condition::UNCONDITIONAL => true,
-        Condition::Z => emu.registers.flags.zero,
-        Condition::NZ => !emu.registers.flags.zero,
-        Condition::C => emu.registers.flags.carry,
-        Condition::NC => !emu.registers.flags.carry
+        Condition::Unconditional => true,
+        Condition::Zero => emu.registers.flags.zero,
+        Condition::NotZero => !emu.registers.flags.zero,
+        Condition::Carry => emu.registers.flags.carry,
+        Condition::NotCarry => !emu.registers.flags.carry
     }
 }

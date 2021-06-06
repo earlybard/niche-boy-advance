@@ -1,11 +1,11 @@
 use crate::emu::Emu;
 
-pub fn compare(emu: &mut Emu) -> u8 {
+pub fn compare(emu: &mut Emu) {
     let byte = emu.read_and_inc();
-    compare_with(emu, byte)
+    compare_with(emu, byte);
 }
 
-fn compare_with(cpu: &mut Emu, byte: u8) -> u8 {
+fn compare_with(cpu: &mut Emu, byte: u8) {
     let (result, carry) = cpu.registers.accumulator.overflowing_sub(byte);
 
     // Bitwise AND with 00001111 to only get the lower nibble for half_carry.
@@ -15,8 +15,6 @@ fn compare_with(cpu: &mut Emu, byte: u8) -> u8 {
     cpu.registers.flags.negative = true;
     cpu.registers.flags.carry = carry;
     cpu.registers.flags.half_carry = half_carry;
-
-    2
 }
 
 #[cfg(test)]

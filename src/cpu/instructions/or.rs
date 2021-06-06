@@ -1,18 +1,11 @@
 use crate::emu::Emu;
-use crate::registers::register::{Register, get_arithmetic_reg_yyy};
+use crate::registers::register::{get_arithmetic_reg_yyy};
 
-pub fn or_n(emu: &mut Emu, opcode: u8) -> u8 {
+pub fn or_n(emu: &mut Emu, opcode: u8) {
 
     let register = get_arithmetic_reg_yyy(opcode);
-
-    let byte = emu.get_reg(&register);
+    let byte = emu.read_register(&register);
     or(emu, byte);
-
-    if !matches!(register, Register::HLPOINTER) {
-        return 2;
-    }
-
-    1
 }
 
 fn or(emu: &mut Emu, byte: u8) {

@@ -1,18 +1,15 @@
 use crate::emu::Emu;
-use crate::registers::register::RegisterPair;
+use crate::registers::register::RegisterPairType;
 
-pub fn push(emu: &mut Emu, register_pair: RegisterPair) -> u8 {
+pub fn push(emu: &mut Emu, register_pair: RegisterPairType) {
 
-    let value = emu.read_u16_and_inc();
+    let value = emu.read_register_pair(&register_pair);
+    emu.cpu.cycle();
     emu.push_to_stack(value);
-
-    4
 }
 
-pub fn pop(emu: &mut Emu, register_pair: RegisterPair) -> u8 {
+pub fn pop(emu: &mut Emu, register_pair: RegisterPairType) {
 
-    let value = emu.read_u16_and_inc();
-    emu.push_to_stack(value);
-
-    4
+    let value = emu.pop_from_stack();
+    emu.write_register_pair(&register_pair, value);
 }

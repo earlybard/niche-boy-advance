@@ -1,24 +1,18 @@
 use crate::emu::Emu;
-use crate::registers::register::{Register, get_arithmetic_reg_yyy};
+use crate::registers::register::{get_arithmetic_reg_yyy};
 
-pub fn and_n(emu: &mut Emu, opcode: u8) -> u8 {
+pub fn and_n(emu: &mut Emu, opcode: u8) {
 
     let register = get_arithmetic_reg_yyy(opcode);
 
-    let byte = emu.get_reg(&register);
+    let byte = emu.read_register(&register);
+
     and(emu, byte);
-
-    if !matches!(register, Register::HLPOINTER) {
-        return 2;
-    }
-
-    1
 }
 
-pub fn and_u8(emu: &mut Emu) -> u8 {
+pub fn and_u8(emu: &mut Emu) {
     let byte = emu.read_and_inc();
     and(emu, byte);
-    2
 }
 
 fn and(emu: &mut Emu, byte: u8) {
@@ -39,12 +33,9 @@ mod tests {
     fn test_and_n() {
         let mut emu = Emu::default();
 
-        let cycles = and_n(&mut emu, 0xA0);
-        assert_eq!(cycles, 1);
-
-
+        and_n(&mut emu, 0xA0);
+        assert_eq!(emu.cpu.m_cycles, 0);
     }
-
 
     #[test]
     fn test_and() {

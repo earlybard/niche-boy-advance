@@ -1,10 +1,9 @@
 use crate::emu::Emu;
 
-pub fn noop() -> u8 {
-    1
+pub fn noop() {
+
 }
 
-pub fn di(cpu: &mut Emu) -> u8 {
+pub fn di(cpu: &mut Emu) {
     cpu.interrupts.ime = false;
-    1
 }

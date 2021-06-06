@@ -26,7 +26,12 @@ impl Flags {
         result
     }
 
-    pub fn set_byte
+    pub fn set_byte(&mut self, byte: u8) {
+        self.zero = byte & 0b10000000 != 0;
+        self.negative = byte & 0b01000000 != 0;
+        self.half_carry = byte & 0b00100000 != 0;
+        self.carry = byte & 0b00010000 != 0;
+    }
 
     pub fn reset(&mut self) {
         self.zero = false;

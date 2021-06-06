@@ -1,20 +1,40 @@
 use crate::emu::Emu;
-use crate::registers::register::{get_arithmetic_reg_pair_xx};
+use crate::registers::register::{RegisterType, RegisterPairType};
 
-pub fn inc_nn(emu: &mut Emu, opcode: u8) -> u8 {
+/// u16 inc/dec
 
-    let register_pair = get_arithmetic_reg_pair_xx(opcode);
-    let value = emu.get_reg_pair(&register_pair).wrapping_add(1);
+pub fn inc_rr(emu: &mut Emu, register_pair: RegisterPairType) {
 
-    emu.set_reg_pair(&register_pair, value);
-    2
+    inc_nn_nocycle(emu, register_pair);
+    emu.cpu.cycle();
 }
 
-pub fn dec_nn(emu: &mut Emu, opcode: u8) -> u8 {
+pub fn inc_nn_nocycle(emu: &mut Emu, register_pair: RegisterPairType) {
 
-    let register_pair = get_arithmetic_reg_pair_xx(opcode);
-    let value = emu.get_reg_pair(&register_pair).wrapping_sub(1);
+    let value = emu.read_register_pair(&register_pair).wrapping_add(1);
+    emu.write_register_pair(&register_pair, value);
+}
 
-    emu.set_reg_pair(&register_pair, value);
-    2
+pub fn dec_nn(emu: &mut Emu, register_pair: RegisterPairType) {
+
+    dec_nn_nocycle(emu, register_pair);
+    emu.cpu.cycle();
+}
+
+pub fn dec_nn_nocycle(emu: &mut Emu, register_pair: RegisterPairType) {
+
+    let value = emu.read_register_pair(&register_pair).wrapping_sub(1);
+    emu.write_register_pair(&register_pair, value);
+}
+
+/// u8 inc/dec
+
+pub fn inc_r(emu: &mut Emu, register: RegisterType) {
+    let value = emu.read_register(&register).wrapping_add(1);
+    emu.write_register(&register, value);
+}
+
+pub fn dec_r(emu: &mut Emu, register: RegisterType) {
+    let value = emu.read_register(&register).wrapping_sub(1);
+    emu.write_register(&register, value);
 }

@@ -11,9 +11,12 @@ pub struct GPU {
 // TODO move this to function / impl of "CPU" so it can access both cpu and gpu at once.
 
 impl Emu {
-    pub fn run_gpu(&mut self, t_cycles: u8) {
+    pub fn run_gpu(&mut self) {
 
-        let lcd_control = self.memory.read_byte(0xFF40);
+        let t_cycles = self.cpu.m_cycles * 4;
+
+        let lcd_control = self.memory.buffer[0xFF40];
+        // let lcd_control = self.read_byte_from_memory(0xFF40);
         let lcd_enable = Util::get_flag(lcd_control, 7);
 
         if !lcd_enable {

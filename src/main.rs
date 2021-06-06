@@ -34,9 +34,9 @@ impl Emulator {
     fn run(&mut self) {
         // eprintln!("rom[0] = {:x}", &self.rom[0]);
         // eprintln!("cpu = {:#?}", &self.cpu);
-        self.emu.registers.pc = 0x100;
+        self.emu.registers.program_counter = 0x100;
         self.emu.registers.accumulator = 0x1;
-        self.emu.registers.sp = 0xFFFE;
+        self.emu.registers.stack_pointer = 0xFFFE;
         self.emu.registers.bc.set_word(0x0014);
         self.emu.registers.hl.set_word(0xC060);
         self.main_loop();
@@ -57,28 +57,14 @@ impl Emulator {
 
         loop {
 
-            if self.emu.registers.pc == 0x1F82 {
+            if self.emu.registers.program_counter == 0x1F82 {
                 println!("{:?}", &self.emu.registers);
                 println!("{:?}", &self.emu.registers.flags);
             }
-            //
-            println!("PC: {:#6X?}", self.emu.registers.pc);
-            let opcode = self.emu.read_and_inc();
-            println!("OP: {:#04X?}", opcode);
-            println!("{:?}", &self.emu.registers);
-            println!("{:?}", &self.emu.registers.flags);
 
-            let m_cycles = self.emu.run_operand(opcode);
+            self.emu.run_operand();
 
-            if m_cycles == 0 {
-                // Unknown.
-                println!("Unknown opcode: {:#4X?}", opcode);
-                println!("{:?}", &self.emu.registers);
-                println!("{:?}", &self.emu.registers.flags);
-                break;
-            }
-
-            self.emu.run_gpu(m_cycles * 4);
+            self.emu.run_gpu();
 
             // if window.is_open() {
             //    window.update_with_buffer(&buffer, 160, 144) .unwrap();

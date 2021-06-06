@@ -18,13 +18,10 @@ pub struct Emu {
 
 #[allow(dead_code)]
 impl Emu {
-    pub fn read(&self) -> u8 {
-        self.memory.buffer[self.registers.pc as usize]
-    }
 
     pub fn read_and_inc(&mut self) -> u8 {
-        self.registers.pc += 1;
-        self.memory.buffer[(self.registers.pc - 1) as usize]
+        self.registers.program_counter += 1;
+        self.read_byte_from_memory(self.registers.program_counter - 1)
     }
 
     pub fn read_u16_and_inc(&mut self) -> u16 {
@@ -36,22 +33,18 @@ impl Emu {
         msb << 8 | lsb
     }
 
-    pub fn inc_pc(&mut self) {
-        self.registers.pc += 1;
-    }
-
     pub fn push_to_stack(&mut self, value: u16) {
 
         self.registers.dec_sp();
-        self.memory.write_byte(self.registers.sp, Util::get_msb(value));
+        self.write_byte_to_memory(self.registers.stack_pointer, Util::get_msb(value));
         self.registers.dec_sp();
-        self.memory.write_byte(self.registers.sp, Util::get_lsb(value));
+        self.write_byte_to_memory(self.registers.stack_pointer, Util::get_lsb(value));
     }
 
     pub fn pop_from_stack(&mut self) -> u16 {
-        let lsb = self.memory.read_byte(self.registers.sp);
+        let lsb = self.read_byte_from_memory(self.registers.stack_pointer);
         self.registers.inc_sp();
-        let msb = self.memory.read_byte(self.registers.sp);
+        let msb = self.read_byte_from_memory(self.registers.stack_pointer);
         self.registers.inc_sp();
 
         Util::bytes_to_word(msb, lsb)

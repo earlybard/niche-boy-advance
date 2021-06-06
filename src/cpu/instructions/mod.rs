@@ -1,6 +1,6 @@
 pub mod jump;
 pub mod xor;
-pub mod load;
+pub mod load_u8;
 pub mod misc;
 pub mod compare;
 pub mod call;
@@ -9,4 +9,5 @@ pub mod and;
 pub mod inc_dec;
 pub mod or;
 pub mod stack;
-
+pub mod load_u16;
+pub mod add_u16;

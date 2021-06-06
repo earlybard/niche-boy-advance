@@ -1,29 +1,26 @@
 use crate::emu::Emu;
 use crate::cpu::conditionals::{Condition, check_condition};
 
-pub fn jump_relative(emu: &mut Emu, condition: Condition) -> u8 {
-    // JR Z, i8
-    // 2M without branch, 3M with branch
-
-    let should_jump = check_condition(emu, condition);
+pub fn jump_relative(emu: &mut Emu, condition: Condition) {
 
     let offset = emu.read_and_inc() as i8;
 
-    return if should_jump {
-        if offset.is_negative() {
-            emu.registers.pc -= offset.abs() as u16;
-        } else {
-            emu.registers.pc += offset.abs() as u16;
-        }
-        3
-    } else {
-        2
+    if !check_condition(emu, condition) {
+        return;
     }
+
+    if offset.is_negative() {
+        // TODO wrapping sub?
+        emu.registers.program_counter -= offset.abs() as u16;
+    } else {
+        emu.registers.program_counter += offset.abs() as u16;
+    }
+
+    emu.cpu.cycle();
 }
 
-pub fn jump(cpu: &mut Emu) -> u8 {
+pub fn jump_nn(cpu: &mut Emu) {
     // JP nn
 
-    cpu.registers.pc = cpu.read_u16_and_inc();
-    3
+    cpu.registers.program_counter = cpu.read_u16_and_inc();
 }

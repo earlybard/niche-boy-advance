@@ -1,15 +1,19 @@
+use crate::emu::Emu;
+
 #[derive(Debug)]
 pub struct Memory {
     pub buffer: [u8; 0xFFFF + 1]
 }
 
-impl Memory {
-    pub fn read_byte(&self, index: u16) -> u8 {
-        self.buffer[index as usize]
+impl Emu {
+    pub fn read_byte_from_memory(&mut self, addr: u16) -> u8 {
+        self.cpu.cycle();
+        self.memory.buffer[addr as usize]
     }
 
-    pub fn write_byte(&mut self, index: u16, byte: u8) {
-        self.buffer[index as usize] = byte;
+    pub fn write_byte_to_memory(&mut self, addr: u16, byte: u8) {
+        self.cpu.cycle();
+        self.memory.buffer[addr as usize] = byte;
     }
 }
 

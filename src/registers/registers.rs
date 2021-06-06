@@ -10,8 +10,8 @@ pub struct Registers {
     pub bc: RegisterPair,
     pub de: RegisterPair,
     pub hl: RegisterPair,
-    pub sp: u16,
-    pub pc: u16,
+    pub stack_pointer: u16,
+    pub program_counter: u16,
 }
 
 impl Debug for Registers {
@@ -21,7 +21,7 @@ impl Debug for Registers {
          .field("bc", &format!("{:#06X?}", &self.bc.get_word()))
          .field("de", &format!("{:#06X?}", &self.de.get_word()))
          .field("hl", &format!("{:#06X?}", &self.hl.get_word()))
-         .field("pc", &format!("{:#06X?}", &self.pc))
+         .field("pc", &format!("{:#06X?}", &self.program_counter))
          .finish()
     }
 }
@@ -34,9 +34,9 @@ impl Registers {
     //     todo!();
     // }
     pub fn dec_sp(&mut self) {
-        self.sp = self.sp.wrapping_sub(1)
+        self.stack_pointer = self.stack_pointer.wrapping_sub(1)
     }
     pub fn inc_sp(&mut self) {
-        self.sp = self.sp.wrapping_add(1)
+        self.stack_pointer = self.stack_pointer.wrapping_add(1)
     }
 }
