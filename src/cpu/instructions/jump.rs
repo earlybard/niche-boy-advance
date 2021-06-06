@@ -1,32 +1,19 @@
 use crate::emu::Emu;
+use crate::cpu::conditionals::{Condition, check_condition};
 
-pub enum JumpRelativeCondition {
-    UNCONDITIONAL,
-    Z,
-    NZ,
-    C,
-    NC
-}
-
-pub fn jump_relative(cpu: &mut Emu, condition: JumpRelativeCondition) -> u8 {
+pub fn jump_relative(emu: &mut Emu, condition: Condition) -> u8 {
     // JR Z, i8
     // 2M without branch, 3M with branch
 
-    let should_jump = match condition {
-        JumpRelativeCondition::UNCONDITIONAL => true,
-        JumpRelativeCondition::Z => cpu.registers.flags.zero,
-        JumpRelativeCondition::NZ => !cpu.registers.flags.zero,
-        JumpRelativeCondition::C => true,
-        JumpRelativeCondition::NC => true
-    };
+    let should_jump = check_condition(emu, condition);
 
-    let offset = cpu.read_and_inc() as i8;
+    let offset = emu.read_and_inc() as i8;
 
     return if should_jump {
         if offset.is_negative() {
-            cpu.registers.pc -= offset.abs() as u16;
+            emu.registers.pc -= offset.abs() as u16;
         } else {
-            cpu.registers.pc += offset.abs() as u16;
+            emu.registers.pc += offset.abs() as u16;
         }
         3
     } else {

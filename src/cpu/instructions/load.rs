@@ -76,6 +76,7 @@ fn load_register_to_register(emu: &mut Emu, to: Register, from: Register) -> u8 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::registers::register::Register::{D, E};
 
     #[test]
     fn test_load_rr() {

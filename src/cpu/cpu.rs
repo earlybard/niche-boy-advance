@@ -5,7 +5,7 @@ use crate::registers::register::{RegisterPair};
 use crate::cpu::instructions::load::{load, load_r_n, load_control_to_register, load_rr, load_rr_nn};
 use crate::cpu::instructions::misc::{di, noop};
 use crate::cpu::instructions::compare::compare;
-use crate::cpu::instructions::jump::JumpRelativeCondition::{UNCONDITIONAL, Z, NZ};
+use crate::cpu::instructions::jump::JumpRelativeCondition::{UNCONDITIONAL, Z, NZ, NC, C};
 use crate::cpu::instructions::load::LoadMode::{FF00, WORD};
 use crate::cpu::instructions::call::{call, ret};
 use crate::registers::register::Register::{A};
@@ -13,6 +13,7 @@ use crate::cpu::instructions::res::res;
 use crate::cpu::instructions::and::{and_u8, and_n};
 use crate::cpu::instructions::inc_dec::{inc_nn, dec_nn};
 use crate::cpu::instructions::or::or_n;
+use crate::cpu::conditionals::Condition::{UNCONDITIONAL, NZ, Z, NC, C};
 
 
 #[derive(Debug)]
@@ -30,6 +31,8 @@ impl Emu {
             0x18 => jump_relative(self, UNCONDITIONAL),
             0x20 => jump_relative(self, NZ),
             0x28 => jump_relative(self, Z),
+            0x30 => jump_relative(self, NC),
+            0x38 => jump_relative(self, C),
             0x21 => load_rr_nn(self, RegisterPair::HL),
             0x31 => load_rr_nn(self, RegisterPair::SP),
             0x03 | 0x13 | 0x23 | 0x33 => inc_nn(self, opcode),
