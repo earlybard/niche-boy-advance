@@ -15,6 +15,7 @@ impl Util {
         Util::bytes_to_word(0, byte)
     }
 
+    /// Turns a word into (msb, lsb).
     pub fn word_to_bytes(word: u16) -> (u8, u8) {
         (Util::get_msb(word), Util::get_lsb(word))
     }
@@ -53,12 +54,12 @@ impl Util {
 
     /// Add two bytes.
     /// Returns (the result, the half_carry flag, and the carry flag).
-    pub fn add_with_carry_flags(left: u8, right: u8) -> (u8, bool, bool) {
+    pub fn add_with_flags(left: u8, right: u8) -> (u8, bool, bool) {
 
         let (result, carry) = left.overflowing_add(right);
 
         // Add lower nibbles together, and then check if bit 3 is set.
-        let (half_add, _) = (left & 0b00001111).overflowing_add(right & 0b00001111);
+        let half_add = (left & 0b00001111).wrapping_add(right & 0b00001111);
         let half_carry = Util::get_flag(half_add, 4);
 
         (result, half_carry, carry)
@@ -66,12 +67,12 @@ impl Util {
 
     /// Subtracts two bytes.
     /// Returns (the result, the half_carry flag, and the carry flag).
-    pub fn sub_with_carry_flags(left: u8, right: u8) -> (u8, bool, bool) {
+    pub fn sub_with_flags(left: u8, right: u8) -> (u8, bool, bool) {
 
         let (result, carry) = left.overflowing_sub(right);
 
         // Subtract lower nibbles, and then check if bit 3 is set.
-        let (half_sub, _) = (left & 0b00001111).overflowing_sub(right & 0b00001111);
+        let half_sub = (left & 0b00001111).wrapping_sub(right & 0b00001111);
         let half_carry = Util::get_flag(half_sub, 4);
 
         (result, half_carry, carry)
@@ -81,7 +82,7 @@ impl Util {
 
         let (result, carry) = left.overflowing_add(right);
 
-        let (half_add, _) = (left & 0b0000_1111_1111_1111).overflowing_add(right & 0b0000_1111_1111_1111);
+        let half_add = (left & 0b0000_1111_1111_1111).wrapping_add(right & 0b0000_1111_1111_1111);
         let half_carry = (half_add & 0b0001_0000_0000_0000) != 0;
 
         (result, half_carry, carry)
@@ -91,7 +92,7 @@ impl Util {
 
         let (result, carry) = left.overflowing_sub(right);
 
-        let (half_sub, _) = (left & 0b0000_1111_1111_1111).overflowing_sub(right & 0b0000_1111_1111_1111);
+        let half_sub = (left & 0b0000_1111_1111_1111).wrapping_sub(right & 0b0000_1111_1111_1111);
         let half_carry = (half_sub & 0b0001_0000_0000_0000) != 0;
 
         (result, half_carry, carry)
@@ -124,19 +125,19 @@ mod tests {
     fn add_with_carry_flags() {
 
         // Easy test with only lower bits.
-        let (result, hc, c) = Util::add_with_carry_flags(0b00001010, 0b00001100);
+        let (result, hc, c) = Util::add_with_flags(0b00001010, 0b00001100);
         assert_eq!(result, 0b00010110);
         assert_eq!(hc, true);
         assert_eq!(c, false);
 
         // Full carry too.
-        let (result, hc, c) = Util::add_with_carry_flags(0b11111010, 0b11111100);
+        let (result, hc, c) = Util::add_with_flags(0b11111010, 0b11111100);
         assert_eq!(result, 0b011110110);
         assert_eq!(hc, true);
         assert_eq!(c, true);
 
         // Only full carry.
-        let (result, hc, c) = Util::add_with_carry_flags(0b11110010, 0b11110100);
+        let (result, hc, c) = Util::add_with_flags(0b11110010, 0b11110100);
         assert_eq!(result, 0b011100110);
         assert_eq!(hc, false);
         assert_eq!(c, true);

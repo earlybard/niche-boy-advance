@@ -1,14 +1,12 @@
 use crate::emu::Emu;
-use crate::registers::register::{get_arithmetic_reg_yyy};
+use crate::registers::register::{get_arithmetic_reg_yyy, RegisterType};
 
-pub fn or_n(emu: &mut Emu, opcode: u8) {
-
-    let register = get_arithmetic_reg_yyy(opcode);
+pub fn or(emu: &mut Emu, register: RegisterType) {
     let byte = emu.read_register(&register);
-    or(emu, byte);
+    or_internal(emu, byte);
 }
 
-fn or(emu: &mut Emu, byte: u8) {
+fn or_internal(emu: &mut Emu, byte: u8) {
     emu.registers.accumulator = emu.registers.accumulator | byte;
 
     emu.registers.flags.zero = emu.registers.accumulator == 0;

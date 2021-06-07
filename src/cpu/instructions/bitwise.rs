@@ -2,14 +2,27 @@ use crate::emu::Emu;
 use crate::registers::register::RegisterType;
 use crate::util::Util;
 
-pub fn res(cpu: &mut Emu, bit: u8, register: RegisterType) {
+pub fn bit(emu: &mut Emu, bit: u8, register: RegisterType) {
+    let byte = emu.read_register(&register);
+    let flag = Util::get_flag(byte, bit);
 
-    let val = cpu.read_register(&register);
-
-    let result = Util::reset_flag(val, bit);
-
-    cpu.write_register(&register, result);
+    emu.registers.flags.zero = !flag;
+    emu.registers.flags.negative = false;
+    emu.registers.flags.half_carry = true;
 }
+
+pub fn set(emu: &mut Emu, bit: u8, register: RegisterType) {
+    let byte = emu.read_register(&register);
+    let value = Util::set_flag(byte, bit);
+    emu.write_register(&register, value);
+}
+
+pub fn reset(emu: &mut Emu, bit: u8, register: RegisterType) {
+    let byte = emu.read_register(&register);
+    let value = Util::reset_flag(byte, bit);
+    emu.write_register(&register, value);
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -22,10 +35,10 @@ mod tests {
         let mut cpu = Emu::default();
 
         cpu.registers.hl.first = 0b10111001;
-        res(&mut cpu, 7, RegisterType::H);
+        reset(&mut cpu, 7, RegisterType::H);
         assert_eq!(cpu.registers.hl.first, 0b00111001);
 
-        res(&mut cpu, 4, RegisterType::H);
+        reset(&mut cpu, 4, RegisterType::H);
         assert_eq!(cpu.registers.hl.first, 0b00101001);
     }
 }

@@ -57,10 +57,10 @@ impl Emulator {
 
         loop {
 
-            if self.emu.registers.program_counter == 0x1F82 {
-                println!("{:?}", &self.emu.registers);
-                println!("{:?}", &self.emu.registers.flags);
-            }
+            // if self.emu.registers.program_counter == 0x1F82 {
+            //     println!("{:?}", &self.emu.registers);
+            //     println!("{:?}", &self.emu.registers.flags);
+            // }
 
             self.emu.run_operand();
 

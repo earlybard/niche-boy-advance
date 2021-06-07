@@ -1,4 +1,5 @@
 use crate::emu::Emu;
+use crate::util::Util;
 
 #[derive(Debug)]
 pub struct Memory {
@@ -14,6 +15,12 @@ impl Emu {
     pub fn write_byte_to_memory(&mut self, addr: u16, byte: u8) {
         self.cpu.cycle();
         self.memory.buffer[addr as usize] = byte;
+    }
+
+    pub fn write_word_to_memory(&mut self, addr: u16, word: u16) {
+        let (msb, lsb) = Util::word_to_bytes(word);
+        self.write_byte_to_memory(addr, lsb);
+        self.write_byte_to_memory(addr.wrapping_add(1), msb);
     }
 }
 

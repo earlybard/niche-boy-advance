@@ -32,7 +32,7 @@ pub fn dec_nn_nocycle(emu: &mut Emu, register_pair: RegisterPairType) {
 pub fn inc_r(emu: &mut Emu, register: RegisterType) {
 
     let left = emu.read_register(&register);
-    let (value, hc, _) = Util::add_with_carry_flags(left, 1);
+    let (value, hc, _) = Util::add_with_flags(left, 1);
 
     emu.write_register(&register, value);
 
@@ -44,7 +44,7 @@ pub fn inc_r(emu: &mut Emu, register: RegisterType) {
 pub fn dec_r(emu: &mut Emu, register: RegisterType) {
 
     let left = emu.read_register(&register);
-    let (value, hc, _) = Util::sub_with_carry_flags(left, 1);
+    let (value, hc, _) = Util::sub_with_flags(left, 1);
 
     emu.write_register(&register, value);
 

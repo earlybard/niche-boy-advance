@@ -1,19 +1,25 @@
 use crate::emu::Emu;
 use crate::util::Util;
+use crate::registers::register::RegisterType;
 
-pub fn compare(emu: &mut Emu) {
-    let byte = emu.read_and_inc();
-    compare_with(emu, byte);
+pub fn compare(emu: &mut Emu, register: RegisterType) {
+    let byte = emu.read_register(&register);
+    compare_internal(emu, byte);
 }
 
-fn compare_with(cpu: &mut Emu, byte: u8) {
+pub fn compare_n(emu: &mut Emu) {
+    let byte = emu.read_and_inc();
+    compare_internal(emu, byte);
+}
 
-    let (result, half_carry, carry) = Util::sub_with_carry_flags(cpu.registers.accumulator, byte);
+fn compare_internal(emu: &mut Emu, byte: u8) {
 
-    cpu.registers.flags.zero = result == 0;
-    cpu.registers.flags.negative = true;
-    cpu.registers.flags.carry = carry;
-    cpu.registers.flags.half_carry = half_carry;
+    let (value, hc, c) = Util::sub_with_flags(emu.registers.accumulator, byte);
+
+    emu.registers.flags.zero = value == 0;
+    emu.registers.flags.negative = true;
+    emu.registers.flags.carry = c;
+    emu.registers.flags.half_carry = hc;
 }
 
 #[cfg(test)]
@@ -28,7 +34,7 @@ mod tests {
 
         for n in 0x01..=0x0F {
             emu.registers.accumulator = n;
-            compare_with(&mut emu, 0x91);
+            compare_internal(&mut emu, 0x91);
 
             assert!(!emu.registers.flags.zero);
             assert!(emu.registers.flags.negative);
@@ -37,7 +43,7 @@ mod tests {
         }
 
         emu.registers.accumulator = 0x10;
-        compare_with(&mut emu, 0x91);
+        compare_internal(&mut emu, 0x91);
 
         assert!(!emu.registers.flags.zero);
         assert!(emu.registers.flags.negative);
@@ -45,7 +51,7 @@ mod tests {
         assert!(emu.registers.flags.carry);
 
         emu.registers.accumulator = 0x91;
-        compare_with(&mut emu, 0x91);
+        compare_internal(&mut emu, 0x91);
 
         assert!(emu.registers.flags.zero);
         assert!(emu.registers.flags.negative);

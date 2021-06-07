@@ -32,11 +32,11 @@ impl Emu {
 
             if self.gpu.ly > 153 {
                 self.gpu.ly = 0;
-                println!("Frame");
+                // println!("Frame");
             }
         }
 
-        eprintln!("self.gpu.ly = {:?}", self.gpu.ly);
+        // eprintln!("self.gpu.ly = {:?}", self.gpu.ly);
 
         self.memory.buffer[0xFF44] = self.gpu.ly;
     }

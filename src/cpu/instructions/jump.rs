@@ -19,8 +19,16 @@ pub fn jump_relative(emu: &mut Emu, condition: Condition) {
     emu.cpu.cycle();
 }
 
-pub fn jump_nn(cpu: &mut Emu) {
-    // JP nn
+pub fn jump(emu: &mut Emu, condition: Condition) {
 
-    cpu.registers.program_counter = cpu.read_u16_and_inc();
+    let value = emu.read_u16_and_inc();
+
+    if check_condition(emu, condition) {
+        emu.registers.program_counter = value;
+        emu.cpu.cycle();
+    }
+}
+
+pub fn jump_hl(emu: &mut Emu) {
+    emu.registers.program_counter = emu.registers.hl.get_word();
 }

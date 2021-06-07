@@ -12,3 +12,4 @@ pub mod stack;
 pub mod load_u16;
 pub mod add_u16;
 pub mod daa;
+pub mod arithmetic;
