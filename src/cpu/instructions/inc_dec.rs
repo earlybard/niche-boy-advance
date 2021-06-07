@@ -1,5 +1,6 @@
 use crate::emu::Emu;
 use crate::registers::register::{RegisterType, RegisterPairType};
+use crate::util::Util;
 
 /// u16 inc/dec
 
@@ -28,13 +29,26 @@ pub fn dec_nn_nocycle(emu: &mut Emu, register_pair: RegisterPairType) {
 }
 
 /// u8 inc/dec
-
 pub fn inc_r(emu: &mut Emu, register: RegisterType) {
-    let value = emu.read_register(&register).wrapping_add(1);
+
+    let left = emu.read_register(&register);
+    let (value, hc, _) = Util::add_with_carry_flags(left, 1);
+
     emu.write_register(&register, value);
+
+    emu.registers.flags.zero = value == 0;
+    emu.registers.flags.negative = false;
+    emu.registers.flags.half_carry = hc;
 }
 
 pub fn dec_r(emu: &mut Emu, register: RegisterType) {
-    let value = emu.read_register(&register).wrapping_sub(1);
+
+    let left = emu.read_register(&register);
+    let (value, hc, _) = Util::sub_with_carry_flags(left, 1);
+
     emu.write_register(&register, value);
+
+    emu.registers.flags.zero = value == 0;
+    emu.registers.flags.negative = false;
+    emu.registers.flags.half_carry = hc;
 }

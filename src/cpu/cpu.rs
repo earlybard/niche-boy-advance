@@ -1,13 +1,12 @@
 use crate::emu::Emu;
 use crate::cpu::instructions::jump::{jump_relative, jump_nn};
 use crate::cpu::instructions::xor::xor;
-use crate::registers::register::{RegisterPairType};
 use crate::cpu::instructions::load_u8::{load_r_n, load_rr, load_hli_a, load_hld_a, load_a_hli, load_a_hld, ldh_n_a, ldh_a_n, ldh_c_a, ldh_a_c, load_rr_a, load_a_rr};
 use crate::cpu::instructions::misc::{di, noop};
 use crate::cpu::instructions::compare::compare;
-use crate::cpu::instructions::call::{call, ret};
+use crate::cpu::instructions::call_ret::{call, ret, restart};
 use crate::registers::register::RegisterType::{A, B, H, D, HLPOINTER, C, E, L};
-use crate::cpu::instructions::res::res;
+use crate::cpu::instructions::bitwise::res;
 use crate::cpu::instructions::and::{and_u8, and_n};
 use crate::cpu::instructions::inc_dec::{inc_rr, dec_nn, inc_r, dec_r};
 use crate::cpu::instructions::or::or_n;
@@ -16,6 +15,8 @@ use std::process::exit;
 use crate::registers::register::RegisterPairType::{BC, DE, HL, SP, AF};
 use crate::cpu::instructions::stack::{push, pop};
 use crate::cpu::instructions::load_u16::{load_rr_nn, load_nn_a, load_a_nn};
+use crate::cpu::instructions::add_u16::add_hl_rr;
+use crate::cpu::conditionals::Condition;
 
 
 #[derive(Debug)]
@@ -84,6 +85,11 @@ impl Emu {
             0x30 => jump_relative(self, NotCarry),
             0x38 => jump_relative(self, Carry),
 
+            0x09 => add_hl_rr(self, BC),
+            0x19 => add_hl_rr(self, DE),
+            0x29 => add_hl_rr(self, HL),
+            0x39 => add_hl_rr(self, SP),
+
             // TODO r is register n is immediate everywhere
 
             0x0A => load_a_rr(self, BC),
@@ -116,9 +122,10 @@ impl Emu {
             0xB0..=0xB7 => or_n(self, opcode),
             0xAF => xor(self, A),
             0xC3 => jump_nn(self),
-            0xC9 => ret(self),
             0xCB => self.run_prefix(),
 
+            0xC0 => ret(self, NotZero),
+            0xD0 => ret(self, NotCarry),
             0xE0 => ldh_n_a(self),
             0xF0 => ldh_a_n(self),
 
@@ -143,11 +150,26 @@ impl Emu {
 
             0xE6 => and_u8(self),
 
+            0xC7 => restart(self, 00),
+            0xD7 => restart(self, 10),
+            0xE7 => restart(self, 20),
+            0xF7 => restart(self, 30),
+
+            0xC8 => ret(self, Zero),
+            0xD8 => ret(self, Carry),
+
+            0xC9 => ret(self, Unconditional),
+
             0xEA => load_nn_a(self),
             0xFA => load_a_nn(self),
 
             0xF3 => di(self),
             0xFE => compare(self),
+
+            0xCF => restart(self, 08),
+            0xDF => restart(self, 18),
+            0xEF => restart(self, 28),
+            0xFF => restart(self, 38),
             _ => {
                 println!("Unknown opcode: {:#04X?}", opcode);
                 println!("{:?}", &self.registers);
