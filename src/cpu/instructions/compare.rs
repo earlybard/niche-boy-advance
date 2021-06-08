@@ -7,11 +7,6 @@ pub fn compare(emu: &mut Emu, register: RegisterType) {
     compare_internal(emu, byte);
 }
 
-pub fn compare_n(emu: &mut Emu) {
-    let byte = emu.read_and_inc();
-    compare_internal(emu, byte);
-}
-
 fn compare_internal(emu: &mut Emu, byte: u8) {
 
     let (value, hc, c) = Util::sub_with_flags(emu.registers.accumulator, byte);

@@ -12,6 +12,7 @@ mod registers;
 mod memory;
 pub mod emu;
 mod interrupts;
+mod macros;
 
 // const T_CLOCK: u32 = 4194304u32;
 // const M_CLOCK: u32 = T_CLOCK / 4;
@@ -31,7 +32,7 @@ struct Emulator {
 /// http://www.codeslinger.co.uk/pages/projects/gameboy/lcd.html
 /// https://gbdev.io/pandocs/LCDC.html
 impl Emulator {
-    fn run(&mut self) {
+    fn run(&mut self, bootrom: bool) {
         // eprintln!("rom[0] = {:x}", &self.rom[0]);
         // eprintln!("cpu = {:#?}", &self.cpu);
         self.emu.registers.program_counter = 0x100;
@@ -39,6 +40,18 @@ impl Emulator {
         self.emu.registers.stack_pointer = 0xFFFE;
         self.emu.registers.bc.set_word(0x0014);
         self.emu.registers.hl.set_word(0xC060);
+
+        if bootrom {
+            self.emu.registers.program_counter = 0x00;
+            //
+            for _ in 0..=255u8 {
+                self.emu.run_operand();
+                self.emu.run_gpu();
+            }
+
+            return
+        }
+
         self.main_loop();
     }
 
@@ -86,12 +99,12 @@ fn main() {
     // Maximum size of GB ROM: http://www.codeslinger.co.uk/pages/projects/gameboy/beginning.html
     // let mut rom = [0u8; 200000];
     let mut boot = File::open("roms/Pokemon Red.gb").unwrap();
-    // let mut boot = File::open("src/dmg_boot.bin").unwrap();
+    // let mut boot = File::open("roms/boot.bin").unwrap();
 
     let mut emu = Emulator::default();
     boot.read(&mut emu.emu.memory.buffer).unwrap();
 
-    emu.run();
+    emu.run(false);
 
 
     // let he = hex::encode(rom);

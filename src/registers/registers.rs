@@ -1,7 +1,19 @@
-use crate::registers::flags::Flags;
 use crate::registers::register_pair::RegisterPair;
 use std::fmt::{Debug, Formatter, Result};
 use crate::util::Util;
+use crate::flags_byte;
+
+flags_byte!(
+    Flags,
+    zero,
+    negative,
+    half_carry,
+    carry,
+    _3,
+    _2,
+    _1,
+    _0
+);
 
 #[derive(Default)]
 pub struct Registers {

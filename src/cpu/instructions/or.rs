@@ -1,5 +1,5 @@
 use crate::emu::Emu;
-use crate::registers::register::{get_arithmetic_reg_yyy, RegisterType};
+use crate::registers::register::{RegisterType};
 
 pub fn or(emu: &mut Emu, register: RegisterType) {
     let byte = emu.read_register(&register);

@@ -5,6 +5,7 @@ use crate::registers::register::RegisterPairType::{HL};
 use crate::cpu::instructions::inc_dec::{inc_nn_nocycle, dec_nn_nocycle};
 
 /// Load to register r from immediate u8 value n.
+/// TODO this can just be load_r_r now.
 pub fn load_r_n(cpu: &mut Emu, register: RegisterType) {
 
     let value = cpu.read_and_inc();

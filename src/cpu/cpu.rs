@@ -3,9 +3,9 @@ use crate::cpu::instructions::jump::{jump_relative, jump, jump_hl};
 use crate::cpu::instructions::xor::xor;
 use crate::cpu::instructions::load_u8::{load_r_n, load_rr, load_hli_a, load_hld_a, load_a_hli, load_a_hld, ldh_n_a, ldh_a_n, ldh_c_a, ldh_a_c, load_rr_a, load_a_rr};
 use crate::cpu::instructions::misc::{di, noop};
-use crate::cpu::instructions::compare::{compare_n, compare};
+use crate::cpu::instructions::compare::{compare};
 use crate::cpu::instructions::call_ret::{call, ret, restart};
-use crate::registers::register::RegisterType::{A, B, H, D, HLPOINTER, C, E, L};
+use crate::registers::register::RegisterType::{A, B, H, D, HLPOINTER, C, E, L, NextU8};
 use crate::cpu::instructions::bitwise::{reset, set, bit};
 use crate::cpu::instructions::and::{and_u8, and};
 use crate::cpu::instructions::inc_dec::{inc_rr, dec_nn, inc_r, dec_r};
@@ -16,7 +16,6 @@ use crate::registers::register::RegisterPairType::{BC, DE, HL, SP, AF};
 use crate::cpu::instructions::stack::{push, pop};
 use crate::cpu::instructions::load_u16::{load_rr_nn, load_nn_a, load_a_nn, load_nn_sp, load_sp_hl};
 use crate::cpu::instructions::add_u16::add_hl_rr;
-use crate::cpu::conditionals::Condition;
 use crate::cpu::instructions::arithmetic::{add, adc, sub, sbc};
 
 #[derive(Debug)]
@@ -249,7 +248,10 @@ impl Emu {
 
             0xCB => self.run_prefix(),
 
-            0xFE => compare_n(self),
+            0xCE => adc(self, NextU8),
+            0xDE => sbc(self, NextU8),
+            0xEE => xor(self, NextU8),
+            0xFE => compare(self, NextU8),
 
             0xCF => restart(self, 08),
             0xDF => restart(self, 18),

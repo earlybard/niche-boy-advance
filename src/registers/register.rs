@@ -11,7 +11,8 @@ pub enum RegisterType {
     F,
     H,
     L,
-    HLPOINTER
+    HLPOINTER,
+    NextU8
 }
 
 #[derive(Debug)]
@@ -37,7 +38,8 @@ impl Emu {
             RegisterType::HLPOINTER => {
                 let word = self.registers.hl.get_word();
                 self.read_byte_from_memory(word)
-            }
+            },
+            RegisterType::NextU8 => self.read_and_inc()
         }
     }
     pub fn write_register(&mut self, register: &RegisterType, value: u8) {
@@ -53,6 +55,7 @@ impl Emu {
             RegisterType::HLPOINTER => {
                 self.write_byte_to_memory(self.registers.hl.get_word(), value)
             }
+            RegisterType::NextU8 => panic!("Can't write to NextU8")
         }
     }
 
