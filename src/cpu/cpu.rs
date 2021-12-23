@@ -39,10 +39,13 @@ impl Emu {
         // Reset cycles for this operand.
         self.cpu.m_cycles = 0;
 
+        // println!("{:#04X?}", self.registers.program_counter);
+        println!("{:?}", &self.registers);
+
         let opcode = self.read_and_inc();
 
+
         // println!("OP: {:#04X?}", opcode);
-        // println!("{:?}", &self.registers);
         // println!("{:?}", &self.registers.flags);
 
         match opcode {

@@ -33,7 +33,9 @@ impl Debug for Registers {
          .field("bc", &format!("{:#06X?}", &self.bc.get_word()))
          .field("de", &format!("{:#06X?}", &self.de.get_word()))
          .field("hl", &format!("{:#06X?}", &self.hl.get_word()))
+         .field("sp", &format!("{:#06X?}", &self.stack_pointer))
          .field("pc", &format!("{:#06X?}", &self.program_counter))
+         .field("flags", &format!("{}{}{}{}", self.flags.zero as i32, self.flags.negative as i32, self.flags.half_carry as i32, self.flags.carry as i32))
          .finish()
     }
 }

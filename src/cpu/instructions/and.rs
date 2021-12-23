@@ -29,7 +29,7 @@ mod tests {
     fn test_and_n() {
         let mut emu = Emu::default();
 
-        and(&mut emu, 0xA0);
+        and_internal(&mut emu, 0xA0);
         assert_eq!(emu.cpu.m_cycles, 0);
     }
 
