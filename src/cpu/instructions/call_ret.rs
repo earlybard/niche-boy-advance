@@ -8,14 +8,14 @@ pub fn call(emu: &mut Emu, condition: Condition) {
     let value = emu.read_u16_and_inc();
 
     if check_condition(emu, condition) {
-        emu.cpu.cycle();
+        emu.cycle();
         emu.push_to_stack(emu.registers.program_counter);
         emu.registers.program_counter = value;
     }
 }
 
 pub fn restart(emu: &mut Emu, address: u8) {
-    emu.cpu.cycle();
+    emu.cycle();
     emu.push_to_stack(emu.registers.program_counter);
     emu.registers.program_counter = address as u16;
 }
@@ -24,12 +24,12 @@ pub fn ret(emu: &mut Emu, condition: Condition) {
 
     // The conditional versions all cycle an extra time.
     if !matches!(condition, Condition::Unconditional) {
-        emu.cpu.cycle();
+        emu.cycle();
     }
 
     if check_condition(emu, condition) {
         emu.registers.program_counter = emu.pop_from_stack();
-        emu.cpu.cycle();
+        emu.cycle();
     }
 }
 

@@ -15,5 +15,5 @@ pub fn add_hl_rr(emu: &mut Emu, register_pair: RegisterPairType) {
     emu.registers.flags.half_carry = half_carry;
     emu.registers.flags.carry = carry;
 
-    emu.cpu.cycle();
+    emu.cycle();
 }

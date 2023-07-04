@@ -19,18 +19,21 @@ pub struct Emu {
 #[allow(dead_code)]
 impl Emu {
 
-    pub fn read_and_inc(&mut self) -> u8 {
+    pub fn cycle(&mut self) {
+        self.cpu.m_cycles += 1;
+        self.cycle_gpu();
+    }
+
+    pub fn read_pc(&mut self) -> u8 {
         self.registers.program_counter += 1;
         self.read_byte_from_memory(self.registers.program_counter - 1)
     }
 
     pub fn read_u16_and_inc(&mut self) -> u16 {
-        let lsb = self.read_and_inc() as u16;
-        let msb = self.read_and_inc() as u16;
+        let lsb = self.read_pc();
+        let msb = self.read_pc();
 
-        // msb = 00000001, lsb = 01010000
-        // Smush them together with bit shifting to get 0b0000000101010000 == 0x150
-        msb << 8 | lsb
+        Util::bytes_to_word(msb, lsb)
     }
 
     pub fn push_to_stack(&mut self, value: u16) {

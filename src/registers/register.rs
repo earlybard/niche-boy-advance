@@ -39,7 +39,7 @@ impl Emu {
                 let word = self.registers.hl.get_word();
                 self.read_byte_from_memory(word)
             },
-            RegisterType::NextU8 => self.read_and_inc()
+            RegisterType::NextU8 => self.read_pc()
         }
     }
     pub fn write_register(&mut self, register: &RegisterType, value: u8) {

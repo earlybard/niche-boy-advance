@@ -6,11 +6,6 @@ pub fn and(emu: &mut Emu, register: RegisterType) {
     and_internal(emu, byte);
 }
 
-pub fn and_u8(emu: &mut Emu) {
-    let byte = emu.read_and_inc();
-    and_internal(emu, byte);
-}
-
 fn and_internal(emu: &mut Emu, byte: u8) {
     emu.registers.accumulator = emu.registers.accumulator & byte;
 

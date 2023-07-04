@@ -3,7 +3,7 @@ use crate::cpu::conditionals::{Condition, check_condition};
 
 pub fn jump_relative(emu: &mut Emu, condition: Condition) {
 
-    let offset = emu.read_and_inc() as i8;
+    let offset = emu.read_pc() as i8;
 
     if !check_condition(emu, condition) {
         return;
@@ -16,7 +16,7 @@ pub fn jump_relative(emu: &mut Emu, condition: Condition) {
         emu.registers.program_counter += offset.abs() as u16;
     }
 
-    emu.cpu.cycle();
+    emu.cycle();
 }
 
 pub fn jump(emu: &mut Emu, condition: Condition) {
@@ -25,7 +25,7 @@ pub fn jump(emu: &mut Emu, condition: Condition) {
 
     if check_condition(emu, condition) {
         emu.registers.program_counter = value;
-        emu.cpu.cycle();
+        emu.cycle();
     }
 }
 

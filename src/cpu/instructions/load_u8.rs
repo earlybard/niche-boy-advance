@@ -2,27 +2,19 @@ use crate::emu::{Emu};
 use crate::registers::register::{RegisterType, get_arithmetic_reg_xxx, get_arithmetic_reg_yyy, RegisterPairType};
 use crate::registers::register::RegisterType::{HLPOINTER, A};
 use crate::registers::register::RegisterPairType::{HL};
-use crate::cpu::instructions::inc_dec::{inc_nn_nocycle, dec_nn_nocycle};
-
-/// Load to register r from immediate u8 value n.
-/// TODO this can just be load_r_r now.
-pub fn load_r_n(cpu: &mut Emu, register: RegisterType) {
-
-    let value = cpu.read_and_inc();
-    cpu.write_register(&register, value);
-}
+use crate::cpu::instructions::inc_dec::{inc_rr_nocycle, dec_rr_nocycle};
 
 // TODO remove
-pub fn load_rr(cpu: &mut Emu, opcode: u8) {
+pub fn load_rr_from_opcode(cpu: &mut Emu, opcode: u8) {
 
     let to = get_arithmetic_reg_xxx(opcode);
     let from = get_arithmetic_reg_yyy(opcode);
 
-    load_r_r(cpu, to, from);
+    load_r_r(cpu, from, to);
 }
 
 /// Load to Register r from Register r.
-pub fn load_r_r(emu: &mut Emu, to: RegisterType, from: RegisterType) {
+pub fn load_r_r(emu: &mut Emu, from: RegisterType, to: RegisterType) {
 
     // TODO move halt.
     if matches!(from, HLPOINTER) && matches!(to, HLPOINTER) {
@@ -48,38 +40,38 @@ pub fn load_a_rr(emu: &mut Emu, register_pair: RegisterPairType) {
 
 /// Load (HL) into A, then decrement HL.
 pub fn load_a_hld(emu: &mut Emu) {
-    load_r_r(emu, A, HLPOINTER);
-    dec_nn_nocycle(emu, HL);
+    load_r_r(emu, HLPOINTER, A);
+    dec_rr_nocycle(emu, HL);
 }
 
 /// Load A into (HL), then decrement HL.
 pub fn load_hld_a(emu: &mut Emu) {
-    load_r_r(emu, HLPOINTER, A);
-    dec_nn_nocycle(emu, HL);
+    load_r_r(emu, A, HLPOINTER);
+    dec_rr_nocycle(emu, HL);
 }
 
 /// Load (HL) into A, then increment HL.
 pub fn load_a_hli(emu: &mut Emu) {
-    load_r_r(emu, A, HLPOINTER);
-    inc_nn_nocycle(emu, HL);
+    load_r_r(emu, HLPOINTER, A);
+    inc_rr_nocycle(emu, HL);
 }
 
 /// Load A into (HL), then increment HL.
 pub fn load_hli_a(emu: &mut Emu) {
-    load_r_r(emu, HLPOINTER, A);
-    inc_nn_nocycle(emu, HL);
+    load_r_r(emu, A, HLPOINTER);
+    inc_rr_nocycle(emu, HL);
 }
 
 /// Load A into (0xFF00+n).
 pub fn ldh_n_a(emu: &mut Emu) {
-    let addr = 0xFF00 + (emu.read_and_inc() as u16);
+    let addr = 0xFF00 + (emu.read_pc() as u16);
     let value = emu.registers.accumulator;
     emu.write_byte_to_memory(addr, value);
 }
 
 /// Load (0xFF00+n) into A.
 pub fn ldh_a_n(emu: &mut Emu) {
-    let addr = 0xFF00 + (emu.read_and_inc() as u16);
+    let addr = 0xFF00 + (emu.read_pc() as u16);
     let value = emu.read_byte_from_memory(addr);
     emu.registers.accumulator = value;
 }
@@ -123,7 +115,7 @@ mod tests {
         emu.registers.de.second = 0x20;
 
         // LD D, E
-        load_r_r(&mut emu, D, E);
+        load_r_r(&mut emu, E, D);
 
         assert_eq!(emu.registers.de.first, 0x20);
         assert_eq!(emu.registers.de.second, 0x20);
@@ -132,7 +124,7 @@ mod tests {
         emu.registers.de.second = 0x20;
 
         // Test from opcode.
-        load_rr(&mut emu, 0x53);
+        load_rr_from_opcode(&mut emu, 0x53);
 
         assert_eq!(emu.registers.de.first, 0x20);
         assert_eq!(emu.registers.de.second, 0x20);
@@ -146,7 +138,7 @@ mod tests {
         emu.registers.hl.set_word(0xFFAA);
         emu.memory.buffer[0xFFAA] = 10;
 
-        load_r_r(&mut emu, HLPOINTER, D);
+        load_r_r(&mut emu, D, HLPOINTER);
 
         assert_eq!(emu.memory.buffer[0xFFAA], 20);
         assert_eq!(emu.cpu.m_cycles, 1);

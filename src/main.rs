@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::prelude::*;
+use minifb::{Scale, Window, WindowOptions};
 
 // use minifb::{Scale, Window, WindowOptions};
 
@@ -51,7 +52,6 @@ impl Emulator {
             //
             for _ in 0..=255u8 {
                 self.emu.run_operand();
-                self.emu.run_gpu();
             }
 
             return
@@ -62,15 +62,16 @@ impl Emulator {
 
     fn main_loop(&mut self) {
 
-        // let mut buffer = vec![0u32; 160*144];
+        let azure_blue = Emulator::from_u8_rgb(0, 127, 255);
+        let mut buffer = vec![azure_blue; 160*144];
         //
-        // let mut window = Window::new(
-        //     "Test - ESC to exit",
-        //     160,
-        //     144,
-        //     WindowOptions { scale: Scale::X4, ..WindowOptions::default() }
-        // ).unwrap();
-        //
+        let mut window = Window::new(
+            "Test - ESC to exit",
+            160,
+            144,
+            WindowOptions { scale: Scale::X4, ..WindowOptions::default() }
+        ).unwrap();
+        //f
         // window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
         loop {
@@ -81,18 +82,27 @@ impl Emulator {
             // }
 
             self.emu.run_operand();
+            // println!("{}", self.emu.cpu.m_cycles);
+
+
 
             // self.emu.run_gpu();
 
             // if window.is_open() {
-            //    window.update_with_buffer(&buffer, 160, 144) .unwrap();
+            //    window.update_with_buffer(&buffer, 160, 144).unwrap();
             // }
+
             // println!("{}", cycles);
 
-            // println!("{:?}", &self.cpu.registers);
+            // println!("{:?}", &self.emu.registers);
             // println!("{:?}", &self.cpu.registers.flags);
         }
         // eprintln!("opcode = {:#?}", opcode);
+    }
+
+    fn from_u8_rgb(r: u8, g: u8, b: u8) -> u32 {
+        let (r, g, b) = (r as u32, g as u32, b as u32);
+        (r << 16) | (g << 8) | b
     }
 }
 
@@ -106,10 +116,10 @@ fn main() {
     let mut boot = File::open("roms/Pokemon Red.gb").unwrap();
     // let mut boot = File::open("roms/boot.bin").unwrap();
 
-    let mut emu = Emulator::default();
-    boot.read(&mut emu.emu.memory.buffer).unwrap();
+    let mut emulator = Emulator::default();
+    boot.read(&mut emulator.emu.memory.buffer).unwrap();
 
-    emu.run(false);
+    emulator.run(false);
 
 
     // let he = hex::encode(rom);

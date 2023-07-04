@@ -28,6 +28,6 @@ pub fn load_nn_sp(emu: &mut Emu) {
 }
 
 pub fn load_sp_hl(emu: &mut Emu) {
-    emu.cpu.cycle();
+    emu.cycle();
     emu.registers.stack_pointer = emu.registers.hl.get_word();
 }

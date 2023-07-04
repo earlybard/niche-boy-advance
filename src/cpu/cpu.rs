@@ -1,14 +1,14 @@
 use crate::emu::Emu;
 use crate::cpu::instructions::jump::{jump_relative, jump, jump_hl};
 use crate::cpu::instructions::xor::xor;
-use crate::cpu::instructions::load_u8::{load_r_n, load_rr, load_hli_a, load_hld_a, load_a_hli, load_a_hld, ldh_n_a, ldh_a_n, ldh_c_a, ldh_a_c, load_rr_a, load_a_rr};
+use crate::cpu::instructions::load_u8::{load_rr_from_opcode, load_hli_a, load_hld_a, load_a_hli, load_a_hld, ldh_n_a, ldh_a_n, ldh_c_a, ldh_a_c, load_rr_a, load_a_rr, load_r_r};
 use crate::cpu::instructions::misc::{di, noop};
 use crate::cpu::instructions::compare::{compare};
 use crate::cpu::instructions::call_ret::{call, ret, restart};
 use crate::registers::register::RegisterType::{A, B, H, D, HLPOINTER, C, E, L, NextU8};
 use crate::cpu::instructions::bitwise::{reset, set, bit};
-use crate::cpu::instructions::and::{and_u8, and};
-use crate::cpu::instructions::inc_dec::{inc_rr, dec_nn, inc_r, dec_r};
+use crate::cpu::instructions::and::{and};
+use crate::cpu::instructions::inc_dec::{inc_rr, dec_rr, inc_r, dec_r};
 use crate::cpu::instructions::or::or;
 use crate::cpu::conditionals::Condition::{Unconditional, NotZero, Zero, NotCarry, Carry};
 use std::process::exit;
@@ -25,12 +25,6 @@ pub struct CPU {
     pub m_cycles: u8
 }
 
-impl CPU {
-    pub fn cycle(&mut self) {
-        self.m_cycles += 1;
-    }
-}
-
 impl Emu {
     pub fn run_operand(&mut self) {
 
@@ -40,9 +34,9 @@ impl Emu {
         self.cpu.m_cycles = 0;
 
         // println!("{:#04X?}", self.registers.program_counter);
-        println!("{:?}", &self.registers);
+        // println!("{:?}", &self.registers);
 
-        let opcode = self.read_and_inc();
+        let opcode = self.read_pc();
 
 
         // println!("OP: {:#04X?}", opcode);
@@ -79,10 +73,10 @@ impl Emu {
             0x25 => dec_r(self, H),
             0x35 => dec_r(self, HLPOINTER),
 
-            0x06 => load_r_n(self, B),
-            0x16 => load_r_n(self, D),
-            0x26 => load_r_n(self, H),
-            0x36 => load_r_n(self, HLPOINTER),
+            0x06 => load_r_r(self, NextU8, B),
+            0x16 => load_r_r(self, NextU8, D),
+            0x26 => load_r_r(self, NextU8, H),
+            0x36 => load_r_r(self, NextU8, HLPOINTER),
 
             0x08 => load_nn_sp(self),
             0x18 => jump_relative(self, Unconditional),
@@ -101,15 +95,15 @@ impl Emu {
             0x2A => load_a_hli(self),
             0x3A => load_a_hld(self),
 
-            0x0E => load_r_n(self, C),
-            0x1E => load_r_n(self, E),
-            0x2E => load_r_n(self, L),
-            0x3E => load_r_n(self, A),
+            0x0E => load_r_r(self, NextU8, C),
+            0x1E => load_r_r(self, NextU8, E),
+            0x2E => load_r_r(self, NextU8, L),
+            0x3E => load_r_r(self, NextU8, A),
 
-            0x0B => dec_nn(self, BC),
-            0x1B => dec_nn(self, DE),
-            0x2B => dec_nn(self, HL),
-            0x3B => dec_nn(self, SP),
+            0x0B => dec_rr(self, BC),
+            0x1B => dec_rr(self, DE),
+            0x2B => dec_rr(self, HL),
+            0x3B => dec_rr(self, SP),
 
             0x0C => inc_r(self, C),
             0x1C => inc_r(self, E),
@@ -121,7 +115,7 @@ impl Emu {
             0x2D => dec_r(self, L),
             0x3D => dec_r(self, A),
 
-            0x40..=0x7F => load_rr(self, opcode),
+            0x40..=0x7F => load_rr_from_opcode(self, opcode),
 
             0x80 => add(self, B),
             0x81 => add(self, C),
@@ -229,7 +223,7 @@ impl Emu {
             0xDC => call(self, Carry),
             0xCD => call(self, Unconditional),
 
-            0xE6 => and_u8(self),
+            0xE6 => and(self, NextU8),
 
             0xC7 => restart(self, 00),
             0xD7 => restart(self, 10),
@@ -271,7 +265,7 @@ impl Emu {
 
     fn run_prefix(&mut self) {
 
-        let opcode = self.read_and_inc();
+        let opcode = self.read_pc();
 
         match opcode {
             0x87 => reset(self, 0, A),

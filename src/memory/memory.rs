@@ -8,7 +8,7 @@ pub struct Memory {
 
 impl Emu {
     pub fn read_byte_from_memory(&mut self, addr: u16) -> u8 {
-        self.cpu.cycle();
+        self.cycle();
 
         // if (0xFF00..=0xFF07).contains(&addr)
         //     || addr == 0xFF40
@@ -20,7 +20,7 @@ impl Emu {
     }
 
     pub fn write_byte_to_memory(&mut self, addr: u16, byte: u8) {
-        self.cpu.cycle();
+        self.cycle();
 
         // if (0xFF00..=0xFF07).contains(&addr)
         //     || addr == 0xFF40

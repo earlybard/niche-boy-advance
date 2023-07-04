@@ -15,6 +15,7 @@ macro_rules! flags_byte {
             pub $lsb: bool
         }
 
+        #[allow(dead_code)]
         impl $struct_name {
 
             pub fn get_byte(&self) -> u8 {

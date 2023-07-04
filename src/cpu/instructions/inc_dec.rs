@@ -6,23 +6,23 @@ use crate::util::Util;
 
 pub fn inc_rr(emu: &mut Emu, register_pair: RegisterPairType) {
 
-    inc_nn_nocycle(emu, register_pair);
-    emu.cpu.cycle();
+    inc_rr_nocycle(emu, register_pair);
+    emu.cycle();
 }
 
-pub fn inc_nn_nocycle(emu: &mut Emu, register_pair: RegisterPairType) {
+pub fn inc_rr_nocycle(emu: &mut Emu, register_pair: RegisterPairType) {
 
     let value = emu.read_register_pair(&register_pair).wrapping_add(1);
     emu.write_register_pair(&register_pair, value);
 }
 
-pub fn dec_nn(emu: &mut Emu, register_pair: RegisterPairType) {
+pub fn dec_rr(emu: &mut Emu, register_pair: RegisterPairType) {
 
-    dec_nn_nocycle(emu, register_pair);
-    emu.cpu.cycle();
+    dec_rr_nocycle(emu, register_pair);
+    emu.cycle();
 }
 
-pub fn dec_nn_nocycle(emu: &mut Emu, register_pair: RegisterPairType) {
+pub fn dec_rr_nocycle(emu: &mut Emu, register_pair: RegisterPairType) {
 
     let value = emu.read_register_pair(&register_pair).wrapping_sub(1);
     emu.write_register_pair(&register_pair, value);

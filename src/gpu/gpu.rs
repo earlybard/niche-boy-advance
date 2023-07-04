@@ -1,5 +1,4 @@
 use crate::emu::Emu;
-use crate::util::Util;
 use crate::flags_byte;
 
 #[derive(Debug)]
@@ -8,7 +7,18 @@ pub struct GPU {
     lcd_control: LCDControl,
     lcd_status: LCDStatus,
     ly: u8,
-    t_cycles: u32
+    lx: u32,
+    mode: GpuMode
+}
+
+#[derive(Debug)]
+#[derive(Default)]
+enum GpuMode {
+    #[default]
+    OAM,
+    PixelTransfer,
+    HBlank,
+    VBlank
 }
 
 // pub struct LCDControl {
@@ -25,38 +35,73 @@ pub struct GPU {
 // TODO move this to function / impl of "CPU" so it can access both cpu and gpu at once.
 
 impl Emu {
-    pub fn run_gpu(&mut self) {
 
-        let t_cycles = self.cpu.m_cycles * 4;
-
+    pub fn cycle_gpu(&mut self) {
         self.gpu.lcd_control.set_byte(self.memory.buffer[0xFF40]);
         self.gpu.lcd_status.set_byte(self.memory.buffer[0xFF41]);
 
-        if !self.gpu.lcd_control.lcd_enable {
-            return;
-        }
+        let line = &mut self.memory.buffer[0xFF44];
 
-        self.gpu.t_cycles += t_cycles as u32;
+        // if !self.gpu.lcd_control.lcd_enable {
+        //     return;
+        // }
 
-        if self.gpu.t_cycles > 114 {
-            self.gpu.t_cycles -= 114;
+        // Scanlines
+        self.gpu.lx += 4;
 
-            self.gpu.ly += 1;
+        if self.gpu.lx == 456 {
+            // Next scanline
+            *line += 1;
+            self.gpu.lx = 0;
 
-            if self.gpu.ly > 153 {
-                self.gpu.ly = 0;
+            if *line == 144 {
+                // Render frame
+                // Vblank
+                println!("vblank");
+            }
 
-                eprintln!("self.gpu.lcd_status = {:?}", self.gpu.lcd_status);
-                eprintln!("self.gpu.lcd_control = {:?}", self.gpu.lcd_control);
-
-                // println!("Frame");
+            if *line == 154 {
+                // Restart
+                *line = 0;
+                println!("new frame");
             }
         }
 
-        // eprintln!("self.gpu.ly = {:?}", self.gpu.ly);
-
-        self.memory.buffer[0xFF44] = self.gpu.ly;
     }
+
+    // pub fn run_gpu(&mut self) {
+    //
+    //     let t_cycles = self.cpu.m_cycles * 4;
+    //     println!("{}", t_cycles);
+    //
+    //     self.gpu.lcd_control.set_byte(self.memory.buffer[0xFF40]);
+    //     self.gpu.lcd_status.set_byte(self.memory.buffer[0xFF41]);
+    //
+    //     if !self.gpu.lcd_control.lcd_enable {
+    //         return;
+    //     }
+    //
+    //     self.gpu.lx += t_cycles as u32;
+    //
+    //     if self.gpu.lx > 114 {
+    //         self.gpu.lx -= 114;
+    //
+    //         self.gpu.ly += 1;
+    //
+    //         if self.gpu.ly > 153 {
+    //             self.gpu.ly = 0;
+    //
+    //             eprintln!("self.gpu.lcd_status = {:?}", self.gpu.lcd_status);
+    //             eprintln!("self.gpu.lcd_control = {:?}", self.gpu.lcd_control);
+    //
+    //             // println!("Frame");
+    //         }
+    //     }
+    //
+    //     // eprintln!("self.gpu.ly = {:?}", self.gpu.ly);
+    //
+    //     self.memory.buffer[0xFF44] = self.gpu.ly;
+    // }
 }
 
 flags_byte!(LCDControl,

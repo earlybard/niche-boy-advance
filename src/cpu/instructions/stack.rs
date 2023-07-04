@@ -4,7 +4,7 @@ use crate::registers::register::RegisterPairType;
 pub fn push(emu: &mut Emu, register_pair: RegisterPairType) {
 
     let value = emu.read_register_pair(&register_pair);
-    emu.cpu.cycle();
+    emu.cycle();
     emu.push_to_stack(value);
 }
 

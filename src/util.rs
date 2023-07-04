@@ -29,6 +29,8 @@ impl Util {
     }
 
     /// Combine two bytes into a word.
+    /// msb = 00000001, lsb = 01010000
+    /// Smush them together with bit shifting to get 0b0000000101010000 == 0x150
     pub fn bytes_to_word(msb: u8, lsb: u8) -> u16 {
         (((msb as u16) << 8) | (lsb as u16)).into()
     }
