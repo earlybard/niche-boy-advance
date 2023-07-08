@@ -36,19 +36,19 @@ impl Util {
     }
 
     /// Get the value of a byte at position n, where 0 is the LSB and 7 is the MSB.
-    pub fn get_flag(byte: u8, n: u8) -> bool {
+    pub fn get_bit(byte: u8, n: u8) -> bool {
         let result = byte & (1u8 << n);
         result != 0
     }
 
     /// Set the value of a byte at position n, where 0 is the LSB and 7 is the MSB.
-    pub fn set_flag(byte: u8, n: u8) -> u8 {
+    pub fn set_bit(byte: u8, n: u8) -> u8 {
         let setter = 1u8 << n;
         byte | setter
     }
 
     /// Reset the value of a byte at position n, where 0 is the LSB and 7 is the MSB.
-    pub fn reset_flag(byte: u8, n: u8) -> u8 {
+    pub fn reset_bit(byte: u8, n: u8) -> u8 {
         // e.g. for bit=3 11110111, bit=2 11111011
         let resetter = !(1u8 << n);
         byte & resetter
@@ -62,7 +62,7 @@ impl Util {
 
         // Add lower nibbles together, and then check if bit 3 is set.
         let half_add = (left & 0b00001111).wrapping_add(right & 0b00001111);
-        let half_carry = Util::get_flag(half_add, 4);
+        let half_carry = Util::get_bit(half_add, 4);
 
         (result, half_carry, carry)
     }
@@ -75,7 +75,7 @@ impl Util {
 
         // Subtract lower nibbles, and then check if bit 3 is set.
         let half_sub = (left & 0b00001111).wrapping_sub(right & 0b00001111);
-        let half_carry = Util::get_flag(half_sub, 4);
+        let half_carry = Util::get_bit(half_sub, 4);
 
         (result, half_carry, carry)
     }
@@ -107,20 +107,20 @@ mod tests {
 
     #[test]
     fn test_get_flag() {
-        assert_eq!(Util::get_flag(0b00010000, 4), true);
-        assert_eq!(Util::get_flag(0b00010000, 5), false);
+        assert_eq!(Util::get_bit(0b00010000, 4), true);
+        assert_eq!(Util::get_bit(0b00010000, 5), false);
     }
 
     #[test]
     fn test_set_flag() {
-        assert_eq!(Util::set_flag(0b00010000, 0), 0b00010001);
-        assert_eq!(Util::set_flag(0b00010000, 4), 0b00010000);
+        assert_eq!(Util::set_bit(0b00010000, 0), 0b00010001);
+        assert_eq!(Util::set_bit(0b00010000, 4), 0b00010000);
     }
 
     #[test]
     fn test_reset_flag() {
-        assert_eq!(Util::reset_flag(0b00010000, 0), 0b00010000);
-        assert_eq!(Util::reset_flag(0b00010000, 4), 0);
+        assert_eq!(Util::reset_bit(0b00010000, 0), 0b00010000);
+        assert_eq!(Util::reset_bit(0b00010000, 4), 0);
     }
 
     #[test]

@@ -62,18 +62,6 @@ impl Emulator {
 
     fn main_loop(&mut self) {
 
-        let azure_blue = Emulator::from_u8_rgb(0, 127, 255);
-        let mut buffer = vec![azure_blue; 160*144];
-        //
-        let mut window = Window::new(
-            "Test - ESC to exit",
-            160,
-            144,
-            WindowOptions { scale: Scale::X4, ..WindowOptions::default() }
-        ).unwrap();
-        //f
-        // window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
-
         loop {
 
             // if self.emu.registers.program_counter == 0x1F82 {
@@ -114,6 +102,7 @@ fn main() {
     // Maximum size of GB ROM: http://www.codeslinger.co.uk/pages/projects/gameboy/beginning.html
     // let mut rom = [0u8; 200000];
     let mut boot = File::open("roms/Pokemon Red.gb").unwrap();
+    // let mut boot = File::open("roms/Pokemon Red.gb").unwrap();
     // let mut boot = File::open("roms/boot.bin").unwrap();
 
     let mut emulator = Emulator::default();

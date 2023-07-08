@@ -243,6 +243,9 @@ impl Emu {
             0xEA => load_nn_a(self),
             0xFA => load_a_nn(self),
 
+            // 0x27 => {}, // daa
+            // 0x37 => {}, // scf
+            // 0xFB => {},
             0xCB => self.run_prefix(),
 
             0xCE => adc(self, NextU8),

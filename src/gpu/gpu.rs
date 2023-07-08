@@ -1,19 +1,23 @@
+use minifb::{Scale, Window, WindowOptions};
 use crate::emu::Emu;
 use crate::flags_byte;
+use crate::gpu::framebuffer::FrameBuffer;
+use crate::memory::memory::Memory;
 
 #[derive(Debug)]
 #[derive(Default)]
 pub struct GPU {
-    lcd_control: LCDControl,
-    lcd_status: LCDStatus,
-    ly: u8,
-    lx: u32,
-    mode: GpuMode
+    pub(crate) lcd_control: LCDControl,
+    pub(crate) lcd_status: LCDStatus,
+    pub ly: u8,
+    lx: u16,
+    fb: FrameBuffer
 }
 
 #[derive(Debug)]
 #[derive(Default)]
-enum GpuMode {
+#[derive(PartialEq)]
+pub enum GpuMode {
     #[default]
     OAM,
     PixelTransfer,
@@ -37,36 +41,56 @@ enum GpuMode {
 impl Emu {
 
     pub fn cycle_gpu(&mut self) {
-        self.gpu.lcd_control.set_byte(self.memory.buffer[0xFF40]);
-        self.gpu.lcd_status.set_byte(self.memory.buffer[0xFF41]);
-
-        let line = &mut self.memory.buffer[0xFF44];
 
         // if !self.gpu.lcd_control.lcd_enable {
         //     return;
         // }
 
+        // Check LYC TODO could do this whenever ly or lyc change?
+        if self.gpu.ly == self.memory.buffer[0xFF45] {
+            self.gpu.lcd_status.ly_equals_lyc = true;
+
+            if self.gpu.lcd_status.ly_lyc_interrupt {
+                // Interrupt here
+                println!("ly=lyc interrupt");
+            }
+        } else {
+            self.gpu.lcd_status.ly_equals_lyc = false;
+        }
+
         // Scanlines
+
+        if self.gpu.get_mode() != GpuMode::VBlank {
+            // Not blanking, do scanline things
+
+            if self.gpu.lx == 0 { self.gpu.set_mode(GpuMode::OAM); }
+
+            if self.gpu.lx == 80 { self.gpu.set_mode(GpuMode::PixelTransfer); }
+
+            // TODO hblank isn't exactly 172 after pixel transfer, it depends
+            if self.gpu.lx == 80 + 172 { self.gpu.set_mode(GpuMode::HBlank); }
+        }
+
         self.gpu.lx += 4;
 
         if self.gpu.lx == 456 {
+
             // Next scanline
-            *line += 1;
+            self.gpu.ly += 1;
             self.gpu.lx = 0;
 
-            if *line == 144 {
+            if self.gpu.ly == 144 {
                 // Render frame
-                // Vblank
-                println!("vblank");
+                self.gpu.fb.render_full_tilemap(&self.memory);
+                self.gpu.fb.update();
+                self.gpu.set_mode(GpuMode::VBlank);
             }
 
-            if *line == 154 {
-                // Restart
-                *line = 0;
-                println!("new frame");
+            if self.gpu.ly == 154 {
+                self.gpu.ly = 0;
+                self.gpu.set_mode(GpuMode::OAM);
             }
         }
-
     }
 
     // pub fn run_gpu(&mut self) {
@@ -102,6 +126,39 @@ impl Emu {
     //
     //     self.memory.buffer[0xFF44] = self.gpu.ly;
     // }
+}
+
+impl GPU {
+
+    pub fn get_mode(&mut self) -> GpuMode {
+        let stat = &self.lcd_status;
+
+        if      stat.mode_flag_0 && stat.mode_flag_1    { GpuMode::PixelTransfer }
+        else if stat.mode_flag_0                        { GpuMode::VBlank }
+        else if stat.mode_flag_1                        { GpuMode::OAM }
+        else                                            { GpuMode::HBlank }
+    }
+
+    pub fn set_mode(&mut self, mode: GpuMode) {
+        match mode {
+            GpuMode::OAM => {
+                self.lcd_status.mode_flag_0 = false;
+                self.lcd_status.mode_flag_1 = true;
+            }
+            GpuMode::PixelTransfer => {
+                self.lcd_status.mode_flag_0 = true;
+                self.lcd_status.mode_flag_1 = true;
+            }
+            GpuMode::HBlank => {
+                self.lcd_status.mode_flag_0 = false;
+                self.lcd_status.mode_flag_1 = false;
+            }
+            GpuMode::VBlank => {
+                self.lcd_status.mode_flag_0 = true;
+                self.lcd_status.mode_flag_1 = false;
+            }
+        }
+    }
 }
 
 flags_byte!(LCDControl,

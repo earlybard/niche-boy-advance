@@ -4,7 +4,7 @@ use crate::util::Util;
 
 pub fn bit(emu: &mut Emu, bit: u8, register: RegisterType) {
     let byte = emu.read_register(&register);
-    let flag = Util::get_flag(byte, bit);
+    let flag = Util::get_bit(byte, bit);
 
     emu.registers.flags.zero = !flag;
     emu.registers.flags.negative = false;
@@ -13,13 +13,13 @@ pub fn bit(emu: &mut Emu, bit: u8, register: RegisterType) {
 
 pub fn set(emu: &mut Emu, bit: u8, register: RegisterType) {
     let byte = emu.read_register(&register);
-    let value = Util::set_flag(byte, bit);
+    let value = Util::set_bit(byte, bit);
     emu.write_register(&register, value);
 }
 
 pub fn reset(emu: &mut Emu, bit: u8, register: RegisterType) {
     let byte = emu.read_register(&register);
-    let value = Util::reset_flag(byte, bit);
+    let value = Util::reset_bit(byte, bit);
     emu.write_register(&register, value);
 }
 
