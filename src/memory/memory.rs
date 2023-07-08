@@ -13,7 +13,7 @@ impl Emu {
         self.cycle();
 
         let response = match addr {
-            0x8000...0x9FFF => {
+            0x8000..=0x9FFF => {
                 if self.gpu.get_mode() == GpuMode::PixelTransfer {
                     0xFF
                 } else {
@@ -45,7 +45,7 @@ impl Emu {
         self.cycle();
 
         match addr {
-            0x8000...0x9FFF => {
+            0x8000..=0x9FFF => {
                 // During pixel transfer, can't write to VRAM
                 if self.gpu.get_mode() != GpuMode::PixelTransfer {
                     self.memory.buffer[addr as usize] = byte;

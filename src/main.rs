@@ -1,8 +1,7 @@
+extern crate core;
+
 use std::fs::File;
 use std::io::prelude::*;
-use minifb::{Scale, Window, WindowOptions};
-
-// use minifb::{Scale, Window, WindowOptions};
 
 use emu::Emu;
 
@@ -107,7 +106,7 @@ fn main() {
 
     let mut emulator = Emulator::default();
     boot.read(&mut emulator.emu.memory.buffer).unwrap();
-
+    emulator.emu.gpu.enable_window();
     emulator.run(false);
 
 

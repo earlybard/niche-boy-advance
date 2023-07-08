@@ -2,7 +2,7 @@ use crate::emu::Emu;
 use crate::cpu::instructions::jump::{jump_relative, jump, jump_hl};
 use crate::cpu::instructions::xor::xor;
 use crate::cpu::instructions::load_u8::{load_rr_from_opcode, load_hli_a, load_hld_a, load_a_hli, load_a_hld, ldh_n_a, ldh_a_n, ldh_c_a, ldh_a_c, load_rr_a, load_a_rr, load_r_r};
-use crate::cpu::instructions::misc::{di, noop};
+use crate::cpu::instructions::misc::{ccf, cpl, di, noop};
 use crate::cpu::instructions::compare::{compare};
 use crate::cpu::instructions::call_ret::{call, ret, restart};
 use crate::registers::register::RegisterType::{A, B, H, D, HLPOINTER, C, E, L, NextU8};
@@ -17,6 +17,7 @@ use crate::cpu::instructions::stack::{push, pop};
 use crate::cpu::instructions::load_u16::{load_rr_nn, load_nn_a, load_a_nn, load_nn_sp, load_sp_hl};
 use crate::cpu::instructions::add_u16::add_hl_rr;
 use crate::cpu::instructions::arithmetic::{add, adc, sub, sbc};
+use crate::cpu::instructions::rotate::{rlca, rrca};
 
 #[derive(Debug)]
 #[derive(Default)]
@@ -78,6 +79,9 @@ impl Emu {
             0x26 => load_r_r(self, NextU8, H),
             0x36 => load_r_r(self, NextU8, HLPOINTER),
 
+            0x07 => rlca(self),
+            0x17 =>
+
             0x08 => load_nn_sp(self),
             0x18 => jump_relative(self, Unconditional),
             0x28 => jump_relative(self, Zero),
@@ -114,6 +118,11 @@ impl Emu {
             0x1D => dec_r(self, E),
             0x2D => dec_r(self, L),
             0x3D => dec_r(self, A),
+
+            0x0F => rrca(self),
+            // 0x1F => rra
+            0x2F => cpl(self),
+            0x3F => ccf(self),
 
             0x40..=0x7F => load_rr_from_opcode(self, opcode),
 

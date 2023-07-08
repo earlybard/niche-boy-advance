@@ -1,8 +1,6 @@
-use minifb::{Scale, Window, WindowOptions};
 use crate::emu::Emu;
 use crate::flags_byte;
 use crate::gpu::framebuffer::FrameBuffer;
-use crate::memory::memory::Memory;
 
 #[derive(Debug)]
 #[derive(Default)]
@@ -129,6 +127,8 @@ impl Emu {
 }
 
 impl GPU {
+
+    pub fn enable_window(&mut self) { self.fb.enable_window(); }
 
     pub fn get_mode(&mut self) -> GpuMode {
         let stat = &self.lcd_status;
