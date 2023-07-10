@@ -33,27 +33,23 @@ struct Emulator {
 /// https://gbdev.io/pandocs/LCDC.html
 impl Emulator {
 
-    fn init(&mut self) {
-        self.emu.registers.program_counter = 0x100;
-        self.emu.registers.accumulator = 0x1;
-        self.emu.registers.stack_pointer = 0xFFFE;
-        self.emu.registers.bc.set_word(0x0014);
-        self.emu.registers.hl.set_word(0xC060);
-    }
-
     fn run(&mut self, bootrom: bool) {
-        // eprintln!("rom[0] = {:x}", &self.rom[0]);
-        // eprintln!("cpu = {:#?}", &self.cpu);
-        self.init();
+
+        // self.emu.gpu.enable_window();
 
         if bootrom {
-            self.emu.registers.program_counter = 0x00;
-            //
-            for _ in 0..=255u8 {
-                self.emu.run_operand();
-            }
-
-            return
+            self.emu.gpu.lcd_status._msb = true;
+            self.emu.gpu.lcd_status.mode_flag_0 = true;
+        } else {
+            self.emu.registers.program_counter = 0x100;
+            self.emu.registers.accumulator = 0x01;
+            self.emu.registers.flags.set_byte(0xB0);
+            self.emu.registers.stack_pointer = 0xFFFE;
+            self.emu.registers.bc.set_word(0x0013);
+            self.emu.registers.de.set_word(0x00D8);
+            self.emu.registers.hl.set_word(0x014D);
+            self.emu.gpu.lcd_status.set_byte(0x85);
+            self.emu.gpu.lcd_control.set_byte(0x91);
         }
 
         self.main_loop();
@@ -61,17 +57,57 @@ impl Emulator {
 
     fn main_loop(&mut self) {
 
+        let mut t_cycle = 0 as usize;
+
         loop {
 
-            // if self.emu.registers.program_counter == 0x1F82 {
-            //     println!("{:?}", &self.emu.registers);
-            //     println!("{:?}", &self.emu.registers.flags);
-            // }
+            // println!("{:?}", &self.emu.registers);
+            // println!("A: {:02X}  F: {:02X}  (AF: {:04X})",
+            //          self.emu.registers.accumulator,
+            //          self.emu.registers.flags.get_byte(),
+            //          self.emu.registers.get_af());
+            // println!("B: {:02X}  C: {:02X}  (BC: {:04X})",
+            //          self.emu.registers.bc.first,
+            //          self.emu.registers.bc.second,
+            //          self.emu.registers.bc.get_word());
+            // println!("D: {:02X}  E: {:02X}  (DE: {:04X})",
+            //          self.emu.registers.de.first,
+            //          self.emu.registers.de.second,
+            //          self.emu.registers.de.get_word());
+            // println!("H: {:02X}  L: {:02X}  (HL: {:04X})",
+            //          self.emu.registers.hl.first,
+            //          self.emu.registers.hl.second,
+            //          self.emu.registers.hl.get_word());
+            // println!("PC: {:04X}  SP: {:04X}",
+            //          self.emu.registers.program_counter,
+            //          self.emu.registers.stack_pointer);
+            //
+            // let flags = &self.emu.registers.flags;
+            //
+            // let z = if flags.zero {"Z"} else {"-"};
+            // let n = if flags.negative {"N"} else {"-"};
+            // let h = if flags.half_carry {"H"} else {"-"};
+            // let c = if flags.carry {"C"} else {"-"};
+            //
+            // println!("F: [{}{}{}{}]", z, n, h, c);
+            // println!("T-cycle: {}", t_cycle);
+            //
+            // println!("LCDC: {:02X}  STAT: {:02X}  LY: {:02X}",
+            //     self.emu.gpu.lcd_control.get_byte(),
+            //     self.emu.gpu.lcd_status.get_byte(),
+            //     self.emu.gpu.ly
+            // );
+            //
+            // println!("Mode: {:?}", self.emu.gpu.get_mode());
+            //
+            // print!("00:{:04X}:  ", self.emu.registers.program_counter);
 
             self.emu.run_operand();
+
+            // println!("");
+            t_cycle += self.emu.cpu.m_cycles as usize * 4;
+
             // println!("{}", self.emu.cpu.m_cycles);
-
-
 
             // self.emu.run_gpu();
 
@@ -81,7 +117,6 @@ impl Emulator {
 
             // println!("{}", cycles);
 
-            // println!("{:?}", &self.emu.registers);
             // println!("{:?}", &self.cpu.registers.flags);
         }
         // eprintln!("opcode = {:#?}", opcode);
@@ -102,12 +137,12 @@ fn main() {
     // let mut rom = [0u8; 200000];
     let mut boot = File::open("roms/Pokemon Red.gb").unwrap();
     // let mut boot = File::open("roms/Pokemon Red.gb").unwrap();
-    // let mut boot = File::open("roms/boot.bin").unwrap();
+    let mut boot = File::open("roms/dmg_boot.bin").unwrap();
 
     let mut emulator = Emulator::default();
     boot.read(&mut emulator.emu.memory.buffer).unwrap();
     emulator.emu.gpu.enable_window();
-    emulator.run(false);
+    emulator.run(true);
 
 
     // let he = hex::encode(rom);

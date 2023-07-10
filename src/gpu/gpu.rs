@@ -40,21 +40,21 @@ impl Emu {
 
     pub fn cycle_gpu(&mut self) {
 
-        // if !self.gpu.lcd_control.lcd_enable {
-        //     return;
-        // }
+        if !self.gpu.lcd_control.lcd_enable {
+            return;
+        }
 
         // Check LYC TODO could do this whenever ly or lyc change?
-        if self.gpu.ly == self.memory.buffer[0xFF45] {
-            self.gpu.lcd_status.ly_equals_lyc = true;
-
-            if self.gpu.lcd_status.ly_lyc_interrupt {
-                // Interrupt here
-                println!("ly=lyc interrupt");
-            }
-        } else {
-            self.gpu.lcd_status.ly_equals_lyc = false;
-        }
+        // if self.gpu.ly == self.memory.buffer[0xFF45] {
+        //     self.gpu.lcd_status.ly_equals_lyc = true;
+        //
+        //     if self.gpu.lcd_status.ly_lyc_interrupt {
+        //         // Interrupt here
+        //         println!("ly=lyc interrupt");
+        //     }
+        // } else {
+        //     self.gpu.lcd_status.ly_equals_lyc = false;
+        // }
 
         // Scanlines
 
@@ -75,6 +75,7 @@ impl Emu {
 
             // Next scanline
             self.gpu.ly += 1;
+            self.lyc_check();
             self.gpu.lx = 0;
 
             if self.gpu.ly == 144 {
@@ -89,6 +90,11 @@ impl Emu {
                 self.gpu.set_mode(GpuMode::OAM);
             }
         }
+    }
+
+    pub fn lyc_check(&mut self) {
+        self.gpu.lcd_status.ly_equals_lyc = self.memory.buffer[0xFF45] == self.gpu.ly;
+        // TODO interrupt
     }
 
     // pub fn run_gpu(&mut self) {

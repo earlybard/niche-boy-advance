@@ -11,6 +11,8 @@ pub struct Memory {
 impl Emu {
     pub fn read_byte_from_memory(&mut self, addr: u16) -> u8 {
         self.cycle();
+        // TODO debug log
+        // print!("{:02X}", self.memory.buffer[addr as usize]);
 
         let response = match addr {
             0x8000..=0x9FFF => {
@@ -21,11 +23,11 @@ impl Emu {
                 }
             }
             0xFF40 => {
-                println!("lcd control READ {:?}", self.gpu.lcd_control);
+                // println!("lcd control READ {:?}", self.gpu.lcd_control);
                 self.gpu.lcd_control.get_byte()
             },
             0xFF41 => {
-                println!("lcd status READ {:?}", self.gpu.lcd_status);
+                // println!("lcd status READ {:?}", self.gpu.lcd_status);
                 self.gpu.lcd_status.get_byte()
             },
             0xFF44 => self.gpu.ly,
@@ -41,15 +43,17 @@ impl Emu {
         // }
     }
 
+    fn _write(&mut self, addr: u16, byte: u8) {
+        self.memory.buffer[addr as usize] = byte;
+    }
+
     pub fn write_byte_to_memory(&mut self, addr: u16, byte: u8) {
         self.cycle();
 
         match addr {
             0x8000..=0x9FFF => {
                 // During pixel transfer, can't write to VRAM
-                if self.gpu.get_mode() != GpuMode::PixelTransfer {
-                    self.memory.buffer[addr as usize] = byte;
-                }
+                if self.gpu.get_mode() != GpuMode::PixelTransfer { self._write(addr, byte); }
             }
             0xFF40 => {
                 self.gpu.lcd_control.set_byte(byte);
@@ -60,10 +64,16 @@ impl Emu {
                 // and set mode
                 println!("lcd status {:?}", self.gpu.lcd_status);
             },
-            // TODO probably illegal
-            0xFF44 => self.gpu.ly = byte,
+            /// Any writes to LY while the LCD is enabled are ignored.
+            /// When the LCD is disabled, LY is forcibly set to 0,
+            /// and since it's read-only, the value never changes
+            0xFF44 => { /* Writing to LY is illegal */ } //
+            0xFF45 => {
+                self.lyc_check();
+                self._write(addr, byte);
+            }
             0xFF46 => dma(&mut self.memory.buffer, byte),
-            _ => self.memory.buffer[addr as usize] = byte
+            _ => self._write(addr, byte)
         }
 
 

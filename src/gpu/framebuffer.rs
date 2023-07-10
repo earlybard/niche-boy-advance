@@ -72,6 +72,11 @@ impl FrameBuffer {
                 let offset = start + (i * WIDTH);
                 self.buffer[offset .. offset + 8].copy_from_slice(line);
             }
+
+            // Mark out tiles
+            // self.buffer[start] = FrameBuffer::from_u8_rgb(255, 0 ,0);
+
+            // break;
         }
     }
 

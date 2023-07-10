@@ -17,7 +17,8 @@ use crate::cpu::instructions::stack::{push, pop};
 use crate::cpu::instructions::load_u16::{load_rr_nn, load_nn_a, load_a_nn, load_nn_sp, load_sp_hl};
 use crate::cpu::instructions::add_u16::add_hl_rr;
 use crate::cpu::instructions::arithmetic::{add, adc, sub, sbc};
-use crate::cpu::instructions::rotate::{rlca, rrca};
+use crate::cpu::instructions::rotate::{rl, rla, rlc, rlca, rr, rrc};
+use crate::registers::register::RegisterType;
 
 #[derive(Debug)]
 #[derive(Default)]
@@ -38,7 +39,6 @@ impl Emu {
         // println!("{:?}", &self.registers);
 
         let opcode = self.read_pc();
-
 
         // println!("OP: {:#04X?}", opcode);
         // println!("{:?}", &self.registers.flags);
@@ -80,7 +80,7 @@ impl Emu {
             0x36 => load_r_r(self, NextU8, HLPOINTER),
 
             0x07 => rlca(self),
-            0x17 =>
+            0x17 => rla(self),
 
             0x08 => load_nn_sp(self),
             0x18 => jump_relative(self, Unconditional),
@@ -119,8 +119,8 @@ impl Emu {
             0x2D => dec_r(self, L),
             0x3D => dec_r(self, A),
 
-            0x0F => rrca(self),
-            // 0x1F => rra
+            0x0F => rrc(self, A),
+            0x1F => rr(self, A),
             0x2F => cpl(self),
             0x3F => ccf(self),
 
@@ -204,19 +204,24 @@ impl Emu {
             0xF2 => ldh_a_c(self),
 
             0xC3 => jump(self, Unconditional),
-            0xD3 => panic!(),
-            0xE3 => panic!(),
+            0xD3 => noop(),
+            0xE3 => noop(),
             0xF3 => di(self),
 
             0xC4 => call(self, NotZero),
             0xD4 => call(self, NotCarry),
-            0xE4 => panic!(),
-            0xF4 => panic!(),
+            0xE4 => noop(),
+            0xF4 => noop(),
 
             0xC5 => push(self, BC),
             0xD5 => push(self, DE),
             0xE5 => push(self, HL),
             0xF5 => push(self, AF),
+
+            0xC6 => add(self, NextU8),
+            0xD6 => sub(self, NextU8),
+            0xE6 => and(self, NextU8),
+            0xF6 => or(self, NextU8),
 
             0xC0 => ret(self, NotZero),
             0xD0 => ret(self, NotCarry),
@@ -280,7 +285,42 @@ impl Emu {
         let opcode = self.read_pc();
 
         match opcode {
-            0x87 => reset(self, 0, A),
+
+            0x00 => rlc(self, B),
+            0x01 => rlc(self, C),
+            0x02 => rlc(self, D),
+            0x03 => rlc(self, E),
+            0x04 => rlc(self, H),
+            0x05 => rlc(self, L),
+            0x06 => rlc(self, HLPOINTER),
+            0x07 => rlc(self, A),
+
+            0x08 => rrc(self, B),
+            0x09 => rrc(self, C),
+            0x0A => rrc(self, D),
+            0x0B => rrc(self, E),
+            0x0C => rrc(self, H),
+            0x0D => rrc(self, L),
+            0x0E => rrc(self, HLPOINTER),
+            0x0F => rrc(self, A),
+
+            0x10 => rl(self, B),
+            0x11 => rl(self, C),
+            0x12 => rl(self, D),
+            0x13 => rl(self, E),
+            0x14 => rl(self, H),
+            0x15 => rl(self, L),
+            0x16 => rl(self, HLPOINTER),
+            0x17 => rl(self, A),
+
+            0x18 => rr(self, B),
+            0x19 => rr(self, C),
+            0x1A => rr(self, D),
+            0x1B => rr(self, E),
+            0x1C => rr(self, H),
+            0x1D => rr(self, L),
+            0x1E => rr(self, HLPOINTER),
+            0x1F => rr(self, A),
 
             0x40 => bit(self, 0, B),
             0x41 => bit(self, 0, C),
@@ -354,7 +394,81 @@ impl Emu {
             0x7E => bit(self, 7, HLPOINTER),
             0x7F => bit(self, 7, A),
 
+            0x80 => reset(self, 0, B),
+            0x81 => reset(self, 0, C),
+            0x82 => reset(self, 0, D),
+            0x83 => reset(self, 0, E),
+            0x84 => reset(self, 0, H),
+            0x85 => reset(self, 0, L),
+            0x86 => reset(self, 0, HLPOINTER),
+            0x87 => reset(self, 0, A),
+
+            0x88 => reset(self, 1, B),
+            0x89 => reset(self, 1, C),
+            0x8A => reset(self, 1, D),
+            0x8B => reset(self, 1, E),
+            0x8C => reset(self, 1, H),
+            0x8D => reset(self, 1, L),
+            0x8E => reset(self, 1, HLPOINTER),
+            0x8F => reset(self, 1, A),
+
+            0x90 => reset(self, 2, B),
+            0x91 => reset(self, 2, C),
+            0x92 => reset(self, 2, D),
+            0x93 => reset(self, 2, E),
+            0x94 => reset(self, 2, H),
+            0x95 => reset(self, 2, L),
+            0x96 => reset(self, 2, HLPOINTER),
+            0x97 => reset(self, 2, A),
+
+            0x98 => reset(self, 3, B),
+            0x99 => reset(self, 3, C),
+            0x9A => reset(self, 3, D),
+            0x9B => reset(self, 3, E),
+            0x9C => reset(self, 3, H),
+            0x9D => reset(self, 3, L),
+            0x9E => reset(self, 3, HLPOINTER),
+            0x9F => reset(self, 3, A),
+
+            0xA0 => reset(self, 4, B),
+            0xA1 => reset(self, 4, C),
+            0xA2 => reset(self, 4, D),
+            0xA3 => reset(self, 4, E),
+            0xA4 => reset(self, 4, H),
+            0xA5 => reset(self, 4, L),
+            0xA6 => reset(self, 4, HLPOINTER),
+            0xA7 => reset(self, 4, A),
+
+            0xA8 => reset(self, 5, B),
+            0xA9 => reset(self, 5, C),
+            0xAA => reset(self, 5, D),
+            0xAB => reset(self, 5, E),
+            0xAC => reset(self, 5, H),
+            0xAD => reset(self, 5, L),
+            0xAE => reset(self, 5, HLPOINTER),
+            0xAF => reset(self, 5, A),
+
+            0xB0 => reset(self, 6, B),
+            0xB1 => reset(self, 6, C),
+            0xB2 => reset(self, 6, D),
+            0xB3 => reset(self, 6, E),
+            0xB4 => reset(self, 6, H),
+            0xB5 => reset(self, 6, L),
+            0xB6 => reset(self, 6, HLPOINTER),
+            0xB7 => reset(self, 6, A),
+
+            0xB8 => reset(self, 7, B),
+            0xB9 => reset(self, 7, C),
+            0xBA => reset(self, 7, D),
+            0xBB => reset(self, 7, E),
+            0xBC => reset(self, 7, H),
+            0xBD => reset(self, 7, L),
+            0xBE => reset(self, 7, HLPOINTER),
+            0xBF => reset(self, 7, A),
+
+
             0xCF => set(self, 1, A),
+            0xFF => set(self, 7, A),
             _ => {
                 println!("Unknown PREFIX opcode: {:#4X?}", opcode);
                 println!("{:?}", &self.registers);
