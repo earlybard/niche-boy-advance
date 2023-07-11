@@ -2,17 +2,25 @@ use crate::emu::Emu;
 use crate::gpu::gpu::GpuMode;
 use crate::memory::memory_writers::{dma};
 use crate::util::Util;
+use log::Level::Trace;
 
 #[derive(Debug)]
 pub struct Memory {
-    pub buffer: [u8; 0xFFFF + 1]
+    pub buffer: [u8; 0xFFFF + 1],
+    pub bytes_read_this_instruction: [u8; 5],
+    pub bytes_read_count: usize
 }
 
 impl Emu {
     pub fn read_byte_from_memory(&mut self, addr: u16) -> u8 {
         self.cycle();
-        // TODO debug log
-        // print!("{:02X}", self.memory.buffer[addr as usize]);
+
+        if log_enabled!(Trace) {
+            self.memory.bytes_read_this_instruction[self.memory.bytes_read_count] =
+                self.memory.buffer[addr as usize];
+
+            self.memory.bytes_read_count += 1;
+        }
 
         let response = match addr {
             0x8000..=0x9FFF => {
@@ -95,6 +103,10 @@ impl Emu {
 
 impl Default for Memory {
     fn default() -> Self {
-        Self { buffer: [0; 0xFFFF + 1] }
+        Self {
+            buffer: [0; 0xFFFF + 1],
+            bytes_read_count: 0,
+            bytes_read_this_instruction: [0; 5]
+        }
     }
 }

@@ -2,7 +2,8 @@ extern crate core;
 
 use std::fs::File;
 use std::io::prelude::*;
-
+use log::{Level};
+use log::Level::Trace;
 use emu::Emu;
 
 mod cpu;
@@ -13,6 +14,9 @@ mod memory;
 pub mod emu;
 mod interrupts;
 mod macros;
+
+extern crate pretty_env_logger;
+#[macro_use] extern crate log;
 
 // const T_CLOCK: u32 = 4194304u32;
 // const M_CLOCK: u32 = T_CLOCK / 4;
@@ -61,65 +65,64 @@ impl Emulator {
 
         loop {
 
-            // println!("{:?}", &self.emu.registers);
-            // println!("A: {:02X}  F: {:02X}  (AF: {:04X})",
-            //          self.emu.registers.accumulator,
-            //          self.emu.registers.flags.get_byte(),
-            //          self.emu.registers.get_af());
-            // println!("B: {:02X}  C: {:02X}  (BC: {:04X})",
-            //          self.emu.registers.bc.first,
-            //          self.emu.registers.bc.second,
-            //          self.emu.registers.bc.get_word());
-            // println!("D: {:02X}  E: {:02X}  (DE: {:04X})",
-            //          self.emu.registers.de.first,
-            //          self.emu.registers.de.second,
-            //          self.emu.registers.de.get_word());
-            // println!("H: {:02X}  L: {:02X}  (HL: {:04X})",
-            //          self.emu.registers.hl.first,
-            //          self.emu.registers.hl.second,
-            //          self.emu.registers.hl.get_word());
-            // println!("PC: {:04X}  SP: {:04X}",
-            //          self.emu.registers.program_counter,
-            //          self.emu.registers.stack_pointer);
-            //
-            // let flags = &self.emu.registers.flags;
-            //
-            // let z = if flags.zero {"Z"} else {"-"};
-            // let n = if flags.negative {"N"} else {"-"};
-            // let h = if flags.half_carry {"H"} else {"-"};
-            // let c = if flags.carry {"C"} else {"-"};
-            //
-            // println!("F: [{}{}{}{}]", z, n, h, c);
-            // println!("T-cycle: {}", t_cycle);
-            //
-            // println!("LCDC: {:02X}  STAT: {:02X}  LY: {:02X}",
-            //     self.emu.gpu.lcd_control.get_byte(),
-            //     self.emu.gpu.lcd_status.get_byte(),
-            //     self.emu.gpu.ly
-            // );
-            //
-            // println!("Mode: {:?}", self.emu.gpu.get_mode());
-            //
-            // print!("00:{:04X}:  ", self.emu.registers.program_counter);
+            trace!("----- NEW LOOP -----");
+            trace!("A: {:02X}  F: {:02X}  (AF: {:04X})",
+                     self.emu.registers.accumulator,
+                     self.emu.registers.flags.get_byte(),
+                     self.emu.registers.get_af());
+            trace!("B: {:02X}  C: {:02X}  (BC: {:04X})",
+                     self.emu.registers.bc.first,
+                     self.emu.registers.bc.second,
+                     self.emu.registers.bc.get_word());
+            trace!("D: {:02X}  E: {:02X}  (DE: {:04X})",
+                     self.emu.registers.de.first,
+                     self.emu.registers.de.second,
+                     self.emu.registers.de.get_word());
+            trace!("H: {:02X}  L: {:02X}  (HL: {:04X})",
+                     self.emu.registers.hl.first,
+                     self.emu.registers.hl.second,
+                     self.emu.registers.hl.get_word());
+            trace!("PC: {:04X}  SP: {:04X}",
+                     self.emu.registers.program_counter,
+                     self.emu.registers.stack_pointer);
+
+            let flags = &self.emu.registers.flags;
+
+            let z = if flags.zero {"Z"} else {"-"};
+            let n = if flags.negative {"N"} else {"-"};
+            let h = if flags.half_carry {"H"} else {"-"};
+            let c = if flags.carry {"C"} else {"-"};
+
+            trace!("F: [{}{}{}{}]", z, n, h, c);
+            trace!("T-cycle: {}", t_cycle);
+
+            trace!("LCDC: {:02X}  STAT: {:02X}  LY: {:02X}",
+                self.emu.gpu.lcd_control.get_byte(),
+                self.emu.gpu.lcd_status.get_byte(),
+                self.emu.gpu.ly
+            );
+
+            trace!("Mode: {:?}", self.emu.gpu.get_mode());
+
+
+            let pc = self.emu.registers.program_counter;
 
             self.emu.run_operand();
 
-            // println!("");
+            // Format and print all bytes read this instruction - same as mgba.
+            if log_enabled!(Trace) {
+                let mut str = String::new();
+                for i in 0..self.emu.memory.bytes_read_count {
+                    str = format!("{}{:02X}", str, self.emu.memory.bytes_read_this_instruction[i]);
+                }
+                trace!("00:{:04X}:  {}  ", pc, str);
+
+                self.emu.memory.bytes_read_count = 0;
+            }
+
+
             t_cycle += self.emu.cpu.m_cycles as usize * 4;
-
-            // println!("{}", self.emu.cpu.m_cycles);
-
-            // self.emu.run_gpu();
-
-            // if window.is_open() {
-            //    window.update_with_buffer(&buffer, 160, 144).unwrap();
-            // }
-
-            // println!("{}", cycles);
-
-            // println!("{:?}", &self.cpu.registers.flags);
         }
-        // eprintln!("opcode = {:#?}", opcode);
     }
 
     fn from_u8_rgb(r: u8, g: u8, b: u8) -> u32 {
@@ -130,6 +133,8 @@ impl Emulator {
 
 
 fn main() {
+
+    pretty_env_logger::init();
 
     // let rom = File::open("C:\\Users\\Dylan\\Downloads\\Pokemon - Red Version (UE)[!]\\Pokemon Red.gb");
 
