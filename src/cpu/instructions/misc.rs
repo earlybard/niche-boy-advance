@@ -5,6 +5,7 @@ pub fn noop() {
 }
 
 pub fn di(cpu: &mut Emu) {
+    println!("di");
     cpu.interrupts.ime = false;
 }
 

@@ -44,6 +44,8 @@ impl Emulator {
         if bootrom {
             self.emu.gpu.lcd_status._msb = true;
             self.emu.gpu.lcd_status.mode_flag_0 = true;
+            println!("{:?}", self.emu.gpu.lcd_status);
+            println!("{:?}", self.emu.gpu.lcd_control);
         } else {
             self.emu.registers.program_counter = 0x100;
             self.emu.registers.accumulator = 0x01;
@@ -121,7 +123,7 @@ impl Emulator {
             }
 
 
-            t_cycle += self.emu.cpu.m_cycles as usize * 4;
+            t_cycle += self.emu.cpu.m_cycles as usize * 4 * 2;
         }
     }
 
@@ -140,11 +142,12 @@ fn main() {
 
     // Maximum size of GB ROM: http://www.codeslinger.co.uk/pages/projects/gameboy/beginning.html
     // let mut rom = [0u8; 200000];
-    let mut boot = File::open("roms/Pokemon Red.gb").unwrap();
+    let mut rom = File::open("roms/Pokemon Red.gb").unwrap();
     // let mut boot = File::open("roms/Pokemon Red.gb").unwrap();
     let mut boot = File::open("roms/dmg_boot.bin").unwrap();
 
     let mut emulator = Emulator::default();
+    rom.read(&mut emulator.emu.memory.buffer).unwrap();
     boot.read(&mut emulator.emu.memory.buffer).unwrap();
     emulator.emu.gpu.enable_window();
     emulator.run(true);
