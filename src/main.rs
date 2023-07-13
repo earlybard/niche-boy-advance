@@ -109,6 +109,10 @@ impl Emulator {
 
             let pc = self.emu.registers.program_counter;
 
+            if t_cycle == 664264 {
+                println!("{}", self.emu.memory.buffer[0x9904])
+            }
+
             self.emu.run_operand();
 
             // Format and print all bytes read this instruction - same as mgba.
@@ -142,15 +146,20 @@ fn main() {
 
     // Maximum size of GB ROM: http://www.codeslinger.co.uk/pages/projects/gameboy/beginning.html
     // let mut rom = [0u8; 200000];
-    let mut rom = File::open("roms/Pokemon Red.gb").unwrap();
     // let mut boot = File::open("roms/Pokemon Red.gb").unwrap();
-    let mut boot = File::open("roms/dmg_boot.bin").unwrap();
 
     let mut emulator = Emulator::default();
+
+    let mut rom = File::open("roms/Pokemon Red.gb").unwrap();
     rom.read(&mut emulator.emu.memory.buffer).unwrap();
+
+    let mut boot = File::open("roms/dmg_boot.bin").unwrap();
     boot.read(&mut emulator.emu.memory.buffer).unwrap();
-    emulator.emu.gpu.enable_window();
     emulator.run(true);
+    return;
+
+    emulator.emu.gpu.enable_window();
+    emulator.run(false);
 
 
     // let he = hex::encode(rom);

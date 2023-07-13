@@ -237,8 +237,6 @@ impl Emu {
             0xDC => call(self, Carry),
             0xCD => call(self, Unconditional),
 
-            0xE6 => and(self, NextU8),
-
             0xC7 => restart(self, 00),
             0xD7 => restart(self, 10),
             0xE7 => restart(self, 20),

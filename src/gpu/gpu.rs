@@ -94,7 +94,7 @@ impl Emu {
 
     pub fn lyc_check(&mut self) {
         self.gpu.lcd_status.ly_equals_lyc = self.memory.buffer[0xFF45] == self.gpu.ly;
-        // TODO interrupt
+        // println!("LY = LYC interrupt")
     }
 
     // pub fn run_gpu(&mut self) {

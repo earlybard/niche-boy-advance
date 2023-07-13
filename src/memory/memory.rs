@@ -15,6 +15,8 @@ impl Emu {
     pub fn read_byte_from_memory(&mut self, addr: u16) -> u8 {
         self.cycle();
 
+        // TODO way less switching. We need views into this memory?
+
         if log_enabled!(Trace) {
             self.memory.bytes_read_this_instruction[self.memory.bytes_read_count] =
                 self.memory.buffer[addr as usize];
@@ -39,6 +41,8 @@ impl Emu {
                 self.gpu.lcd_status.get_byte()
             },
             0xFF44 => self.gpu.ly,
+            0xFF0F => self.interrupts.interrupt_flag.get_byte(),
+            0xFFFF => self.interrupts.interrupt_enable.get_byte(),
             _ => self.memory.buffer[addr as usize]
         };
 
@@ -81,6 +85,8 @@ impl Emu {
                 self._write(addr, byte);
             }
             0xFF46 => dma(&mut self.memory.buffer, byte),
+            0xFF0F => self.interrupts.interrupt_flag.set_byte(byte),
+            0xFFFF => self.interrupts.interrupt_enable.set_byte(byte),
             _ => self._write(addr, byte)
         }
 

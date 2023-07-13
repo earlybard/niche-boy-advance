@@ -2,7 +2,7 @@ use minifb::{Scale, Window, WindowOptions};
 use crate::memory::memory::Memory;
 use crate::util::Util;
 
-const WIDTH: usize = 192;
+const WIDTH: usize = 256;
 const HEIGHT: usize = 128;
 
 #[derive(Debug)]
@@ -47,7 +47,7 @@ impl FrameBuffer {
         let mut counter = 0;
 
         // Each tile occupies 16 bytes
-        for (tile_idx, chunk) in memory.buffer[0x8000..0x9800].chunks(16).enumerate() {
+        for (tile_idx, chunk) in memory.buffer[0x8000..=0x9FFF].chunks(16).enumerate() {
 
             let mut tile = [0u32; 8*8];
 

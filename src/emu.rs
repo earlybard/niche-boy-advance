@@ -13,7 +13,7 @@ pub struct Emu {
     pub registers: Registers,
     pub memory: Memory,
     pub gpu: GPU,
-    pub interrupts: Interrupts
+    pub interrupts: Interrupts,
 }
 
 #[allow(dead_code)]
