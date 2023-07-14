@@ -18,7 +18,6 @@ use crate::cpu::instructions::load_u16::{load_rr_nn, load_nn_a, load_a_nn, load_
 use crate::cpu::instructions::add_u16::add_hl_rr;
 use crate::cpu::instructions::arithmetic::{add, adc, sub, sbc};
 use crate::cpu::instructions::rotate::{rl, rla, rlc, rlca, rr, rrc};
-use crate::registers::register::RegisterType;
 
 #[derive(Debug)]
 #[derive(Default)]

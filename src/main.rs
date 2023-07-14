@@ -2,9 +2,10 @@ extern crate core;
 
 use std::fs::File;
 use std::io::prelude::*;
-use log::{Level};
 use log::Level::Trace;
 use emu::Emu;
+use crate::memory::addresses::LY;
+use crate::memory::bitsets::{LCDControl, LCDStatus};
 
 mod cpu;
 mod util;
@@ -42,10 +43,10 @@ impl Emulator {
         // self.emu.gpu.enable_window();
 
         if bootrom {
-            self.emu.gpu.lcd_status._msb = true;
-            self.emu.gpu.lcd_status.mode_flag_0 = true;
-            println!("{:?}", self.emu.gpu.lcd_status);
-            println!("{:?}", self.emu.gpu.lcd_control);
+            LCDStatus::set::_msb(&mut self.emu.memory);
+            LCDStatus::set::mode_flag_0(&mut self.emu.memory);
+            LCDStatus::print(&self.emu.memory);
+            LCDControl::print(&self.emu.memory);
         } else {
             self.emu.registers.program_counter = 0x100;
             self.emu.registers.accumulator = 0x01;
@@ -54,8 +55,8 @@ impl Emulator {
             self.emu.registers.bc.set_word(0x0013);
             self.emu.registers.de.set_word(0x00D8);
             self.emu.registers.hl.set_word(0x014D);
-            self.emu.gpu.lcd_status.set_byte(0x85);
-            self.emu.gpu.lcd_control.set_byte(0x91);
+            LCDStatus::set(&mut self.emu.memory, 0x85);
+            LCDControl::set(&mut self.emu.memory, 0x91);
         }
 
         self.main_loop();
@@ -99,12 +100,12 @@ impl Emulator {
             trace!("T-cycle: {}", t_cycle);
 
             trace!("LCDC: {:02X}  STAT: {:02X}  LY: {:02X}",
-                self.emu.gpu.lcd_control.get_byte(),
-                self.emu.gpu.lcd_status.get_byte(),
-                self.emu.gpu.ly
+                LCDControl::get(&self.emu.memory),
+                LCDStatus::get(&self.emu.memory),
+                self.emu.memory[LY]
             );
 
-            trace!("Mode: {:?}", self.emu.gpu.get_mode());
+            trace!("Mode: {:?}", self.emu.get_gpu_mode());
 
 
             let pc = self.emu.registers.program_counter;
