@@ -51,7 +51,9 @@ impl Emu {
                 } else {
                     self.memory[addr]
                 }
-            }
+            },
+            // TODO compile conditional trace mode
+            LY => 0x90,
             _ => self.memory[addr]
         };
 

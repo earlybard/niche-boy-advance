@@ -53,3 +53,8 @@ fn sub_internal(emu: &mut Emu, byte: u8) -> u8 {
 
     value
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+}

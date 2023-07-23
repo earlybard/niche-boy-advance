@@ -36,6 +36,8 @@ struct Emulator {
 /// http://imrannazar.com/GameBoy-Emulation-in-JavaScript:-GPU-Timings
 /// http://www.codeslinger.co.uk/pages/projects/gameboy/lcd.html
 /// https://gbdev.io/pandocs/LCDC.html
+///
+/// http://www.chebucto.ns.ca/~af380/z-80-g.htm
 impl Emulator {
 
     fn run(&mut self, bootrom: bool) {
@@ -45,8 +47,6 @@ impl Emulator {
         if bootrom {
             LCDStatus::set::_msb(&mut self.emu.memory);
             LCDStatus::set::mode_flag_0(&mut self.emu.memory);
-            LCDStatus::print(&self.emu.memory);
-            LCDControl::print(&self.emu.memory);
         } else {
             self.emu.registers.program_counter = 0x100;
             self.emu.registers.accumulator = 0x01;
@@ -99,6 +99,32 @@ impl Emulator {
             trace!("F: [{}{}{}{}]", z, n, h, c);
             trace!("T-cycle: {}", t_cycle);
 
+
+
+            let r = &self.emu.registers;
+            let pc = self.emu.registers.program_counter;
+
+            // A:00 F:11 B:22 C:33 D:44 E:55 H:66 L:77 SP:8888 PC:9999 PCMEM:AA,BB,CC,DD
+
+            println!("A:{:02X} F:{:02X} B:{:02X} C:{:02X} D:{:02X} E:{:02X} H:{:02X} L:{:02X} SP:{:04X} PC:{:04X} PCMEM:{:02X},{:02X},{:02X},{:02X}",
+                r.accumulator,
+                r.flags.get_byte(),
+                r.bc.first,
+                r.bc.second,
+                r.de.first,
+                r.de.second,
+                r.hl.first,
+                r.hl.second,
+                r.stack_pointer,
+                pc,
+                self.emu.memory[pc],
+                self.emu.memory[pc+1],
+                self.emu.memory[pc+2],
+                self.emu.memory[pc+3]
+            );
+
+            self.emu.run_operand();
+
             trace!("LCDC: {:02X}  STAT: {:02X}  LY: {:02X}",
                 LCDControl::get(&self.emu.memory),
                 LCDStatus::get(&self.emu.memory),
@@ -107,14 +133,6 @@ impl Emulator {
 
             trace!("Mode: {:?}", self.emu.get_gpu_mode());
 
-
-            let pc = self.emu.registers.program_counter;
-
-            if t_cycle == 664264 {
-                println!("{}", self.emu.memory.buffer[0x9904])
-            }
-
-            self.emu.run_operand();
 
             // Format and print all bytes read this instruction - same as mgba.
             if log_enabled!(Trace) {
@@ -126,6 +144,81 @@ impl Emulator {
 
                 self.emu.memory.bytes_read_count = 0;
             }
+
+            // On 1st frame
+            // We matched perfectly
+
+            // On 2nd frame
+            // I set LY to 90 one cpu-instruction after they did
+            // 804704 t-cycles, mgba had:
+
+            // > frame
+            // A: 8F  F: 50  (AF: 8F50)
+            // B: 01  C: 01  (BC: 0101)
+            // D: 64  E: 02  (DE: 6402)
+            // H: 00  L: 0F  (HL: 000F)
+            // PC: 0068  SP: FFFE
+            // F: [-N-C]
+            // T-cycle: 804704
+            // ROM: 01  RAM: 00
+            // IE: 00  IF: E1  IME: 0
+            // LCDC: 91  STAT: 81  LY: 90
+            // Next video mode: 226
+            // 00:0068:  20FA	jr nz, $0064
+
+            // And we had:
+            //  ----- NEW LOOP -----
+            //  A: 8F  F: 50  (AF: 8F50)
+            //  B: 01  C: 01  (BC: 0101)
+            //  D: 64  E: 02  (DE: 6402)
+            //  H: 00  L: 0F  (HL: 000F)
+            //  PC: 0068  SP: FFFE
+            //  F: [-N-C]
+            //  T-cycle: 804704
+            //  LCDC: 91  STAT: 80  LY: 8F
+            //  Mode: HBlank
+            //  00:0068:  20FA
+
+            // Then on instruction 804728, mgba had:
+            // > next
+            // A: 8F  F: 50  (AF: 8F50)
+            // B: 01  C: 01  (BC: 0101)
+            // D: 64  E: 02  (DE: 6402)
+            // H: 00  L: 0F  (HL: 000F)
+            // PC: 0064  SP: FFFE
+            // F: [-N-C]
+            // T-cycle: 804728
+            // ROM: 01  RAM: 00
+            // IE: 00  IF: E1  IME: 0
+            // LCDC: 91  STAT: 81  LY: 90
+            // Next video mode: 220
+            // 00:0064:  F044	ld a, [$FF44]
+
+            // And we had:
+            //  ----- NEW LOOP -----
+            //  A: 8F  F: 50  (AF: 8F50)
+            //  B: 01  C: 01  (BC: 0101)
+            //  D: 64  E: 02  (DE: 6402)
+            //  H: 00  L: 0F  (HL: 000F)
+            //  PC: 0064  SP: FFFE
+            //  F: [-N-C]
+            //  T-cycle: 804728
+            //  LCDC: 91  STAT: 81  LY: 90
+            //  Mode: VBlank
+            //  00:0064:  F04490
+
+
+
+            // if self.emu.gpu.vblank == 1 {
+            //     self.emu.gpu.vblank = 2
+            // } else if self.emu.gpu.vblank == 2 {
+            //     self.emu.gpu.vblank = 0;
+            //     println!("New frame")
+            // }
+            //
+            // if t_cycle >= 532936 {
+            //     println!("here")
+            // }
 
 
             t_cycle += self.emu.cpu.m_cycles as usize * 4 * 2;
@@ -152,14 +245,15 @@ fn main() {
     let mut emulator = Emulator::default();
 
     let mut rom = File::open("roms/Pokemon Red.gb").unwrap();
+    let mut rom = File::open("roms/test-cpu-roms/03-op sp,hl.gb").unwrap();
     rom.read(&mut emulator.emu.memory.buffer).unwrap();
 
-    let mut boot = File::open("roms/dmg_boot.bin").unwrap();
-    boot.read(&mut emulator.emu.memory.buffer).unwrap();
-    emulator.run(true);
-    return;
+    // let mut boot = File::open("roms/dmg_boot.bin").unwrap();
+    // boot.read(&mut emulator.emu.memory.buffer).unwrap();
+    // emulator.run(true);
+    // return;
 
-    emulator.emu.gpu.enable_window();
+    // emulator.emu.gpu.enable_window();
     emulator.run(false);
 
 
@@ -175,13 +269,13 @@ fn main() {
 mod tests {
     use super::*;
 
+    #[ignore]
     #[test]
     fn test_pokemon_startup() {
         let mut boot = File::open("roms/Pokemon Red.gb").unwrap();
         let mut emu = Emulator::default();
 
         boot.read(&mut emu.emu.memory.buffer).unwrap();
-        emu.init();
 
         println!("{:?}", emu.emu.memory.buffer);
 

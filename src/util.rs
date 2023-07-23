@@ -1,7 +1,11 @@
+pub const MSB: u8 = 7;
+pub const LSB: u8 = 0;
+
 pub struct Util {}
 
 #[allow(dead_code)]
 impl Util {
+
     pub fn print_binary_u8(input: u8) {
         eprintln!("{:#010b}", input);
     }

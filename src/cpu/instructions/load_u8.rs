@@ -1,3 +1,4 @@
+use std::process::exit;
 use crate::emu::{Emu};
 use crate::registers::register::{RegisterType, get_arithmetic_reg_xxx, get_arithmetic_reg_yyy, RegisterPairType};
 use crate::registers::register::RegisterType::{HLPOINTER, A};
@@ -64,7 +65,15 @@ pub fn load_hli_a(emu: &mut Emu) {
 
 /// Load A into (0xFF00+n).
 pub fn ldh_n_a(emu: &mut Emu) {
-    let addr = 0xFF00 + (emu.read_pc() as u16);
+    let n = emu.read_pc() as u16;
+
+    // This is the bootrom finished command. Replace first 256 bytes of memory back with the game.
+    if n == 0x50 {
+        println!("0xFF50"); // ??
+        exit(0);
+    }
+
+    let addr = 0xFF00 + n;
     let value = emu.registers.accumulator;
     emu.write_byte_to_memory(addr, value);
 }

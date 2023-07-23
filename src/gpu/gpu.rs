@@ -7,7 +7,8 @@ use crate::memory::bitsets::{LCDControl, LCDStatus};
 #[derive(Default)]
 pub struct GPU {
     lx: u16,
-    fb: FrameBuffer
+    fb: FrameBuffer,
+    pub(crate) vblank: u8
 }
 
 #[derive(Debug)]
@@ -55,6 +56,10 @@ impl Emu {
         }
 
         self.gpu.lx += 4;
+        // hitting 456 would happen at the end? of the frame
+        // or the start of the next one...
+        // so this logic should be BEFORE the increment. i think...
+        // vblank is at 144, i.e. the END of 143. which is at increment 456+1
 
         if self.gpu.lx == 456 {
 
@@ -65,9 +70,17 @@ impl Emu {
             self.lyc_check();
             self.gpu.lx = 0;
 
+            // out of sync? first frame lines up?
+            // second frame we are one behind?
+            // gpu timing has missed a single instruction step
+            // somewhere
+
             if self.memory[LY] == 144 {
+                // Frame debug
+                self.gpu.vblank = 1;
+
                 // Render frame
-                // self.gpu.fb.render_full_tilemap(&self.memory);
+                self.gpu.fb.render_full_tilemap(&self.memory);
                 self.gpu.fb.update();
                 self.set_gpu_mode(GpuMode::VBlank);
             }

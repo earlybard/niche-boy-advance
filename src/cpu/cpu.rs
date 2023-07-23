@@ -17,7 +17,10 @@ use crate::cpu::instructions::stack::{push, pop};
 use crate::cpu::instructions::load_u16::{load_rr_nn, load_nn_a, load_a_nn, load_nn_sp, load_sp_hl};
 use crate::cpu::instructions::add_u16::add_hl_rr;
 use crate::cpu::instructions::arithmetic::{add, adc, sub, sbc};
-use crate::cpu::instructions::rotate::{rl, rla, rlc, rlca, rr, rrc};
+use crate::cpu::instructions::prefix::rotate::{rl, rla, rlc, rlca, rr, rrc};
+use crate::cpu::instructions::prefix::shift::{sla, sra, srl};
+use crate::cpu::instructions::prefix::swap::swap;
+use crate::cpu::instructions::stack_pointer::{add_n_to_sp, ld_hl_plus_n};
 
 #[derive(Debug)]
 #[derive(Default)]
@@ -78,6 +81,8 @@ impl Emu {
             0x26 => load_r_r(self, NextU8, H),
             0x36 => load_r_r(self, NextU8, HLPOINTER),
 
+
+
             0x07 => rlca(self),
             0x17 => rla(self),
 
@@ -123,6 +128,7 @@ impl Emu {
             0x2F => cpl(self),
             0x3F => ccf(self),
 
+            // TODO Manually write this out and skip the maths.
             0x40..=0x7F => load_rr_from_opcode(self, opcode),
 
             0x80 => add(self, B),
@@ -243,6 +249,8 @@ impl Emu {
 
             0xC8 => ret(self, Zero),
             0xD8 => ret(self, Carry),
+            0xE8 => add_n_to_sp(self),
+            0xF8 => ld_hl_plus_n(self),
 
             0xC9 => ret(self, Unconditional),
 
@@ -318,6 +326,42 @@ impl Emu {
             0x1D => rr(self, L),
             0x1E => rr(self, HLPOINTER),
             0x1F => rr(self, A),
+
+            0x20 => sla(self, B),
+            0x21 => sla(self, C),
+            0x22 => sla(self, D),
+            0x23 => sla(self, E),
+            0x24 => sla(self, H),
+            0x25 => sla(self, L),
+            0x26 => sla(self, HLPOINTER),
+            0x27 => sla(self, A),
+
+            0x28 => sra(self, B),
+            0x29 => sra(self, C),
+            0x2A => sra(self, D),
+            0x2B => sra(self, E),
+            0x2C => sra(self, H),
+            0x2D => sra(self, L),
+            0x2E => sra(self, HLPOINTER),
+            0x2F => sra(self, A),
+
+            0x30 => swap(self, B),
+            0x31 => swap(self, C),
+            0x32 => swap(self, D),
+            0x33 => swap(self, E),
+            0x34 => swap(self, H),
+            0x35 => swap(self, L),
+            0x36 => swap(self, HLPOINTER),
+            0x37 => swap(self, A),
+
+            0x38 => srl(self, B),
+            0x39 => srl(self, C),
+            0x3A => srl(self, D),
+            0x3B => srl(self, E),
+            0x3C => srl(self, H),
+            0x3D => srl(self, L),
+            0x3E => srl(self, HLPOINTER),
+            0x3F => srl(self, A),
 
             0x40 => bit(self, 0, B),
             0x41 => bit(self, 0, C),
