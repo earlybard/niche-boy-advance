@@ -74,22 +74,22 @@ fn rotate_left_through_carry(emu: &mut Emu, byte: u8) -> u8 {
 
 pub fn rlca(emu: &mut Emu) {
     rlc(emu, A);
-    emu.registers.flags.zero = true;
+    emu.registers.flags.zero = false;
 }
 
 pub fn rla(emu: &mut Emu) {
     rl(emu, A);
-    emu.registers.flags.zero = true;
+    emu.registers.flags.zero = false;
 }
 
 pub fn rrca(emu: &mut Emu) {
     rrc(emu, A);
-    emu.registers.flags.zero = true;
+    emu.registers.flags.zero = false;
 }
 
 pub fn rra(emu: &mut Emu) {
     rr(emu, A);
-    emu.registers.flags.zero = true;
+    emu.registers.flags.zero = false;
 }
 
 /// Rotate left circular accumulator.

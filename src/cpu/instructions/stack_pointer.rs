@@ -1,45 +1,33 @@
+use minifb::Key::P;
 use crate::emu::Emu;
+use crate::util::Util;
 
 pub fn add_n_to_sp(emu: &mut Emu) {
-    let byte = emu.read_pc();
-    let byte = byte as i16;
-    let byte = byte - 128;
+    let byte = emu.read_pc() as i8 as i16 as u16;
 
-    // Now it's between -127 and 127
-    if byte > 0 {
-        emu.registers.stack_pointer = emu.registers.stack_pointer.wrapping_add(byte as u16);
-    } else {
-        emu.registers.stack_pointer = emu.registers.stack_pointer.wrapping_sub(byte.abs() as u16);
-    }
+    let (result, half_carry, carry) =
+        Util::add_u16_lower_with_flags(emu.registers.stack_pointer, byte);
+
+    // Wrapping add.
+    emu.registers.stack_pointer = result;
 
     emu.registers.flags.zero = false;
     emu.registers.flags.negative = false;
-
-    // These are wrong.
-    emu.registers.flags.carry = false;
-    emu.registers.flags.half_carry = false;
+    emu.registers.flags.carry = carry;
+    emu.registers.flags.half_carry = half_carry;
 }
 
 pub fn ld_hl_plus_n(emu: &mut Emu) {
-    let mut sp = emu.registers.stack_pointer;
 
-    let byte = emu.read_pc();
-    let byte = byte as i16;
-    let byte = byte - 128;
+    let byte = emu.read_pc() as i8 as i16 as u16;
 
-    if byte > 0 {
-        sp = sp.wrapping_add(byte as u16);
-    } else {
-        sp = sp.wrapping_sub(byte.abs() as u16);
-    }
+    let (result, half_carry, carry)
+        = Util::add_u16_lower_with_flags(emu.registers.stack_pointer, byte);
 
-    emu.registers.hl.set_word(sp);
-
+    emu.registers.hl.set_word(result);
 
     emu.registers.flags.zero = false;
     emu.registers.flags.negative = false;
-
-    // These are wrong.
-    emu.registers.flags.carry = false;
-    emu.registers.flags.half_carry = false;
+    emu.registers.flags.carry = carry;
+    emu.registers.flags.half_carry = half_carry;
 }

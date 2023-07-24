@@ -49,6 +49,6 @@ pub fn dec_r(emu: &mut Emu, register: RegisterType) {
     emu.write_register(&register, value);
 
     emu.registers.flags.zero = value == 0;
-    emu.registers.flags.negative = false;
+    emu.registers.flags.negative = true;
     emu.registers.flags.half_carry = hc;
 }

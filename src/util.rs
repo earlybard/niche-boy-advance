@@ -103,6 +103,15 @@ impl Util {
 
         (result, half_carry, carry)
     }
+
+    pub fn add_u16_lower_with_flags(left: u16, right: u16) -> (u16, bool, bool) {
+
+        let result = left.wrapping_add(right);
+        let carry = (left & 0x00FF) + (right & 0x00FF) > 0x00FF;
+        let half_carry = (left & 0x000F) + (right & 0x000F) > 0x000F;
+
+        (result, half_carry, carry)
+    }
 }
 
 #[cfg(test)]

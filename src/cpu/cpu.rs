@@ -17,7 +17,7 @@ use crate::cpu::instructions::stack::{push, pop};
 use crate::cpu::instructions::load_u16::{load_rr_nn, load_nn_a, load_a_nn, load_nn_sp, load_sp_hl};
 use crate::cpu::instructions::add_u16::add_hl_rr;
 use crate::cpu::instructions::arithmetic::{add, adc, sub, sbc};
-use crate::cpu::instructions::prefix::rotate::{rl, rla, rlc, rlca, rr, rrc};
+use crate::cpu::instructions::prefix::rotate::{rl, rla, rlc, rlca, rr, rra, rrc, rrca};
 use crate::cpu::instructions::prefix::shift::{sla, sra, srl};
 use crate::cpu::instructions::prefix::swap::swap;
 use crate::cpu::instructions::stack_pointer::{add_n_to_sp, ld_hl_plus_n};
@@ -81,8 +81,6 @@ impl Emu {
             0x26 => load_r_r(self, NextU8, H),
             0x36 => load_r_r(self, NextU8, HLPOINTER),
 
-
-
             0x07 => rlca(self),
             0x17 => rla(self),
 
@@ -123,8 +121,8 @@ impl Emu {
             0x2D => dec_r(self, L),
             0x3D => dec_r(self, A),
 
-            0x0F => rrc(self, A),
-            0x1F => rr(self, A),
+            0x0F => rrca(self),
+            0x1F => rra(self),
             0x2F => cpl(self),
             0x3F => ccf(self),
 
@@ -506,7 +504,6 @@ impl Emu {
             0xBD => reset(self, 7, L),
             0xBE => reset(self, 7, HLPOINTER),
             0xBF => reset(self, 7, A),
-
 
             0xCF => set(self, 1, A),
             0xFF => set(self, 7, A),
